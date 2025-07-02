@@ -5,7 +5,7 @@ const JSProfileUpdate = () => {
     firstName: "",
     lastName: "",
     phone: "",
-    email: "indeedclone@gmail.com",
+    email: "",
     streetAddress: "",
     cityState: "",
     pincode: "",
