@@ -9,7 +9,7 @@ const ProtectedPublic = ({ children }) => {
     const token = localStorage.getItem("token");
     if (token) {
       // Already logged in, redirect to home
-      navigate("/", { replace: true }); // ⚠️ prevent back navigation
+      navigate("/", { replace: true }); 
     }
   }, [navigate]);
 

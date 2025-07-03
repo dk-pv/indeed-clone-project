@@ -112,18 +112,7 @@ const JSProfileUpdate = () => {
                 onChange={handleInputChange}
                 className="mt-1 w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
               />
-              <span className="ml-2 text-sm text-gray-700">
-                Show my number on Indeed
-              </span>
             </label>
-            <p className="text-xs text-gray-500 mt-2 ml-6">
-              By submitting the form with this box ticked, you confirm that you
-              are the primary user and subscriber to the telephone number
-              provided, and you agree to receive calls (including using
-              artificial or pre-recorded voice), texts and WhatsApp messages
-              from Indeed and employers who use Indeed on the telephone number
-              provided above.
-            </p>
           </div>
 
           {/* Email */}

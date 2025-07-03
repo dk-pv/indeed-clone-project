@@ -6,18 +6,17 @@ import SingleEntryAuth from "./pages/SingleEntryAuth";
 import RoleSelection from "./pages/RoleSelection";
 import CompanyReview from "./pages/CompanyReview";
 import EmployerHome from "./pages/EmployerHome";
-import JobPostSuccessPage from './pages/JobPostSuccessPage'
+import JobPostSuccessPage from "./pages/JobPostSuccessPage";
 import CombinedEmployerPage from "./components/employer/CombinedEmployerPage";
 import { AuthProvider } from "./context/AuthContext";
 import ProtectedRoute from "./components/ProtectedRoute";
 import ProtectedPublic from "./components/ProtectedPublic";
 import EmployerPost from "./pages/EmployerPost";
-import EmployerPostEdit from './pages/EmployerPostEdit'
+import EmployerPostEdit from "./pages/EmployerPostEdit";
 import JSProfile from "./pages/JSProfile";
 import JSProfileUpdate from "./pages/JSProfileUpdate";
 
 const router = createBrowserRouter([
-
   {
     path: "/",
     element: <RootLayout />,
@@ -28,80 +27,87 @@ const router = createBrowserRouter([
       },
       {
         path: "/role",
-        element:<ProtectedPublic>  <RoleSelection /> </ProtectedPublic>,
+        element: (
+          <ProtectedPublic>
+            {" "}
+            <RoleSelection />{" "}
+          </ProtectedPublic>
+        ),
       },
       {
         path: "/companyReview",
         element: <CompanyReview />,
       },
       {
-        path:'/profile',
-        element:<JSProfile/>
+        path: "/profile",
+        element: <JSProfile />,
       },
       {
-        path:'/updateProfile',
-        element:<JSProfileUpdate/>
-      }
+        path: "/updateProfile",
+        element: <JSProfileUpdate />,
+      },
     ],
   },
 
   //employer
   {
-  path: "/",
-  element: <RootLayout2 />,
-  children: [
-    {
-      path: "/EmployerHome",
-      element: (
-        <ProtectedRoute requiredRole="employer">
-          <EmployerHome />
-        </ProtectedRoute>
-      ),
-    },
-    {
-      path:'/my-posts',
-      element: (
-        <ProtectedRoute requiredRole="employer">
-         <EmployerPost/>
-        </ProtectedRoute>
-      ),
-    },
-    {
-      path:'/edit-job/:jobId',
-      element: (
-        <ProtectedRoute requiredRole="employer">
-          <EmployerPostEdit/>
-        </ProtectedRoute>
-      ),
-    }
-  ],
-},
+    path: "/",
+    element: <RootLayout2 />,
+    children: [
+      {
+        path: "/EmployerHome",
+        element: (
+          <ProtectedRoute requiredRole="employer">
+            <EmployerHome />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "/my-posts",
+        element: (
+          <ProtectedRoute requiredRole="employer">
+            <EmployerPost />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "/edit-job/:jobId",
+        element: (
+          <ProtectedRoute requiredRole="employer">
+            <EmployerPostEdit />
+          </ProtectedRoute>
+        ),
+      },
+    ],
+  },
   {
     path: "/signin",
-    element:<ProtectedPublic> <SingleEntryAuth /> </ProtectedPublic> ,
+    element: (
+      <ProtectedPublic>
+        <SingleEntryAuth />
+      </ProtectedPublic>
+    ),
   },
   {
-    path:"/success",
-    element:<JobPostSuccessPage />
+    path: "/success",
+    element: <JobPostSuccessPage />,
   },
- {
-  path: "/create-job-post",
-  element: (
-    <ProtectedRoute requiredRole="employer">
-      <CombinedEmployerPage />
-    </ProtectedRoute>
-  )
-}
+  {
+    path: "/create-job-post",
+    element: (
+      <ProtectedRoute requiredRole="employer">
+        <CombinedEmployerPage />
+      </ProtectedRoute>
+    ),
+  },
 ]);
 
 const App = () => {
-  return(
-     <AuthProvider>
+  return (
+    <AuthProvider>
       <RouterProvider router={router} />;
-  </AuthProvider>
-  )
- 
-
+    </AuthProvider>
+  );
 };
 
 export default App;
