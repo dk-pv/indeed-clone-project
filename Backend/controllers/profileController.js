@@ -69,3 +69,17 @@ export const getProfile = async (req, res) => {
     res.status(500).json({ success: false, message: "Server error" });
   }
 };
+
+
+export const uploadResume = async (req, res) => {
+  try {
+    const filePath = `/uploads/resumes/${req.file.filename}`;
+    res.status(200).json({
+      success: true,
+      message: "Resume uploaded successfully",
+      fileUrl: filePath,
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Resume upload failed" });
+  }
+};
