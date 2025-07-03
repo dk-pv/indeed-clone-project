@@ -93,3 +93,5 @@ export const sendOTP = async (email, otp) => {
     throw new Error("Failed to send OTP");
   }
 };
+
+export default transporter
