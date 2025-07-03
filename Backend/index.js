@@ -8,6 +8,7 @@ import authRoutes from "./routes/authRoutes.js";
 import jobRoutes from './routes/jobRoutes.js'
 import searchRoutes from './routes/searchRoutes.js'
 import errorHandler from './middleware/errorHandler.js';
+import profileRoutes from './routes/profileRoutes.js'
 
 connectDB();
 const app = express();
@@ -23,6 +24,7 @@ app.use(express.json());
 app.use("/api/auth", authRoutes);
 app.use("/api/job", jobRoutes);
 app.use("/api/search", searchRoutes);
+app.use('/api/profile' ,  profileRoutes)
 
 
 

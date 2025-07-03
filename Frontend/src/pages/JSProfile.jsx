@@ -1,11 +1,32 @@
-import React, { useContext } from "react";
-import { useNavigate } from "react-router-dom"; // ✅ For navigation
+import React, { useState, useEffect, useContext } from "react";
+import { useNavigate } from "react-router-dom";
 import { Mail, Phone, MapPin, User } from "lucide-react";
 import { AuthContext } from "../context/AuthContext";
+import axios from "axios";
 
 const JSProfile = () => {
   const { user } = useContext(AuthContext);
-  const navigate = useNavigate(); // ✅ Hook to navigate
+  const navigate = useNavigate();
+  const token = localStorage.getItem("token");
+
+  const [profile, setProfile] = useState(null);
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const res = await axios.get("http://localhost:9999/api/profile", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        setProfile(res.data.data);
+      } catch (err) {
+        console.error("Failed to load profile:", err.message);
+      }
+    };
+
+    fetchProfile();
+  }, []);
 
   const handleNavigate = () => {
     navigate("/updateProfile");
@@ -25,7 +46,9 @@ const JSProfile = () => {
                 onClick={handleNavigate}
                 className="text-2xl font-semibold text-blue-700 hover:underline cursor-pointer bg-transparent border-none p-0"
               >
-                Add name
+                {profile?.firstName
+                  ? `${profile.firstName} ${profile.lastName}`
+                  : "Add name"}
               </button>
               <p className="text-gray-600 text-sm mt-1">
                 Complete your profile to stand out
@@ -37,7 +60,9 @@ const JSProfile = () => {
           <div className="space-y-3 text-sm">
             <div className="flex items-center gap-3">
               <Mail size={16} className="text-gray-500" />
-              <span className="text-gray-700">{user?.email || "example@email.com"}</span>
+              <span className="text-gray-700">
+                {profile?.email || user?.email}
+              </span>
             </div>
             <div className="flex items-center gap-3">
               <Phone size={16} className="text-gray-500" />
@@ -45,7 +70,7 @@ const JSProfile = () => {
                 onClick={handleNavigate}
                 className="text-blue-700 hover:underline text-sm bg-transparent border-none p-0"
               >
-                Add phone number
+                {profile?.phone ? profile.phone : "Add phone number"}
               </button>
             </div>
             <div className="flex items-center gap-3">
@@ -54,7 +79,7 @@ const JSProfile = () => {
                 onClick={handleNavigate}
                 className="text-blue-700 hover:underline text-sm bg-transparent border-none p-0"
               >
-                Add location
+                {profile?.cityState || "Add location"}
               </button>
             </div>
           </div>
