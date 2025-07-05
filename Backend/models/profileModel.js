@@ -1,57 +1,41 @@
 import mongoose from "mongoose";
 
-const profileSchema = new mongoose.Schema(
-  {
-    user: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User", // Reference to User model
-      required: true,
-      unique: true, // Ensure one profile per user
-    },
-    firstName: {
-      type: String,
-      required: true,
-      trim: true,
-    },
-    lastName: {
-      type: String,
-      required: true,
-      trim: true,
-    },
-    phone: {
-      type: String,
-      required: true,
-    },
-    email: {
-      type: String,
-      required: true,
-      lowercase: true,
-      trim: true,
-    },
-    showNumberOnIndeed: {
-      type: Boolean,
-      default: true,
-    },
-    streetAddress: {
-      type: String,
-      default: "",
-    },
-    cityState: {
-      type: String,
-      required: true,
-    },
-    pincode: {
-      type: String,
-      default: "",
-    },
-    country: {
-      label: { type: String },
-      value: { type: String },
-    },
+const educationSchema = new mongoose.Schema({
+  degree: String,
+  school: String,
+  fieldOfStudy: String,
+  graduationYear: String,
+  gpa: String,
+}, { _id: false });
+
+const resumeSchema = new mongoose.Schema({
+  originalName: String,
+  filename: String,
+  uploadDate: Date
+}, { _id: false });
+
+const profileSchema = new mongoose.Schema({
+  user: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User", // You already have this
+    required: true,
+    unique: true
   },
-  {
-    timestamps: true,
+  personalInfo: {
+    firstName: String,
+    lastName: String,
+    email: String,
+    phone: String,
+    location: String,
+    profilePicture: String
+  },
+  education: [educationSchema],
+  skills: [String],
+  resume: resumeSchema,
+  profileCompleteness: {
+    type: Number,
+    default: 0
   }
-);
+}, { timestamps: true });
 
 export default mongoose.model("Profile", profileSchema);

@@ -1,85 +1,85 @@
 import Profile from "../models/profileModel.js";
 
-export const createOrUpdateProfile = async (req, res) => {
+// @desc   Get user profile
+// controllers/profileController.js
+export const getProfile = async (req, res) => {
   try {
-    const userId = req.user._id;
-
-    const {
-      firstName,
-      lastName,
-      phone,
-      email,
-      streetAddress,
-      cityState,
-      pincode,
-      country,
-      showNumberOnIndeed,
-    } = req.body;
-
-    let profile = await Profile.findOne({ user: userId });
-
-    if (profile) {
-      // Update existing profile
-      profile.firstName = firstName;
-      profile.lastName = lastName;
-      profile.phone = phone;
-      profile.email = email;
-      profile.streetAddress = streetAddress;
-      profile.cityState = cityState;
-      profile.pincode = pincode;
-      profile.country = country;
-      profile.showNumberOnIndeed = showNumberOnIndeed;
-    } else {
-      // Create new profile
-      profile = new Profile({
-        user: userId,
-        firstName,
-        lastName,
-        phone,
-        email,
-        streetAddress,
-        cityState,
-        pincode,
-        country,
-        showNumberOnIndeed,
+    const profile = await Profile.findOne({ user: req.user._id });
+    if (!profile) {
+      return res.status(200).json({
+        success: true,
+        data: null, // 👈 Handle this in frontend
       });
     }
 
-    const savedProfile = await profile.save();
-    res.status(200).json({ success: true, data: savedProfile });
-  } catch (error) {
-    console.error("Error saving profile:", error);
-    res.status(500).json({ success: false, message: "Server error" });
-  }
-};
-
-
-export const getProfile = async (req, res) => {
-  try {
-    const userId = req.user._id;
-    const profile = await Profile.findOne({ user: userId }).populate("user", "email role");
-
-    if (!profile) {
-      return res.status(404).json({ success: false, message: "Profile not found" });
-    }
-
-    res.status(200).json({ success: true, data: profile });
+    res.status(200).json({
+      success: true,
+      data: profile,
+    });
   } catch (error) {
     console.error("Error fetching profile:", error);
     res.status(500).json({ success: false, message: "Server error" });
   }
 };
 
-
-export const uploadResume = async (req, res) => {
+export const upsertProfile = async (req, res) => {
   try {
-    const filePath = `/uploads/resumes/${req.file.filename}`;
-    res.status(200).json({
-      success: true,
-      message: "Resume uploaded successfully",
-      fileUrl: filePath,
-    });
+    let {
+      firstName,
+      lastName,
+      email,
+      phone,
+      location,
+      education = "[]",
+      skills = "",
+    } = req.body;
+
+    // 🔥 Parse JSON fields sent from FormData
+    education = JSON.parse(education); // string to array of objects
+    skills = skills
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean); // string to array
+
+    let resumeData = null;
+    if (req.file) {
+      resumeData = {
+        originalName: req.file.originalname,
+        filename: req.file.filename,
+        uploadDate: new Date(),
+      };
+    }
+
+    // Profile completeness calculation
+    let completeness = 0;
+    if (firstName) completeness += 15;
+    if (lastName) completeness += 15;
+    if (email) completeness += 15;
+    if (phone) completeness += 10;
+    if (location) completeness += 10;
+    if (resumeData) completeness += 25;
+    if (skills.length > 0) completeness += 10;
+
+    const update = {
+      user: req.user._id,
+      personalInfo: { firstName, lastName, email, phone, location },
+      education,
+      skills,
+      profileCompleteness: completeness,
+    };
+
+    if (resumeData) update.resume = resumeData;
+
+    const profile = await Profile.findOneAndUpdate(
+      { user: req.user._id }, 
+      update,
+      { new: true, upsert: true }
+    );
+
+    res.status(200).json({ success: true, data: profile });
   } catch (error) {
-    res.status(500).json({ success: false, message: "Resume upload failed" });
+    console.error("Profile Error:", error.message);
+    console.error(error.stack);
+    res.status(500).json({ success: false, message: error.message });
   }
 };

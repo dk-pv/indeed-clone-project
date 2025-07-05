@@ -1,71 +1,34 @@
-// import express from "express";
-// import multer from 'multer'
-// import {
-//   createOrUpdateProfile,
-//   getProfile,
-//   uploadResume
-// } from "../controllers/profileController.js";
-// import { verifyToken } from "../middleware/authMiddleware.js";
-
-
-// const router = express.Router();
-
-// router.post("/update", verifyToken , createOrUpdateProfile);
-// router.get("/", verifyToken , getProfile);
-
-// const storage = multer.diskStorage({
-//   destination: (req, file, cb) => cb(null, "uploads/resumes/"),
-//   filename: (req, file, cb) =>
-//     cb(null, `${Date.now()}-${file.originalname}`),
-// });
-// const upload = multer({ storage });
-
-// router.post("/upload-resume", verifyToken, upload.single("resume"), uploadResume);
-
-// export default router;
-
-
 import express from "express";
-import multer from "multer";
-import fs from "fs";
-import {
-  createOrUpdateProfile,
-  getProfile,
-  uploadResume,
-} from "../controllers/profileController.js";
+import { getProfile, upsertProfile } from "../controllers/profileController.js";
 import { verifyToken } from "../middleware/authMiddleware.js";
+import multer from "multer";
+import path from "path";
+
+// Storage setup for resume
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, "uploads/resumes");
+  },
+  filename: function (req, file, cb) {
+    const uniqueName = `${Date.now()}-${file.originalname}`;
+    cb(null, uniqueName);
+  }
+});
+
+const upload = multer({
+  storage,
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
+  fileFilter: (req, file, cb) => {
+    const filetypes = /pdf|doc|docx/;
+    const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
+    if (extname) return cb(null, true);
+    cb(new Error("Only PDF, DOC, and DOCX files are allowed"));
+  }
+});
 
 const router = express.Router();
 
-// Create or update profile
-router.post("/update", verifyToken, createOrUpdateProfile);
-
-// Get current user's profile
 router.get("/", verifyToken, getProfile);
-
-// Resume upload config
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    const dir = "uploads/resumes";
-    // ✅ Create folder if it doesn't exist
-    if (!fs.existsSync(dir)) {
-      fs.mkdirSync(dir, { recursive: true });
-    }
-    cb(null, dir);
-  },
-  filename: (req, file, cb) => {
-    cb(null, `${Date.now()}-${file.originalname}`);
-  },
-});
-
-const upload = multer({ storage });
-
-// Upload resume
-router.post(
-  "/upload-resume",
-  verifyToken,
-  upload.single("resume"),
-  uploadResume
-);
+router.post("/", verifyToken, upload.single("resume"), upsertProfile);
 
 export default router;

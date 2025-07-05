@@ -14,7 +14,6 @@ import ProtectedPublic from "./components/ProtectedPublic";
 import EmployerPost from "./pages/EmployerPost";
 import EmployerPostEdit from "./pages/EmployerPostEdit";
 import JSProfile from "./pages/JSProfile";
-import JSProfileUpdate from "./pages/JSProfileUpdate";
 
 const router = createBrowserRouter([
   {
@@ -41,10 +40,6 @@ const router = createBrowserRouter([
       {
         path: "/profile",
         element: <JSProfile />,
-      },
-      {
-        path: "/updateProfile",
-        element: <JSProfileUpdate />,
       },
     ],
   },

@@ -4,6 +4,7 @@ dotenv.config();
 import express from "express";
 import cors from "cors";
 import connectDB from "./config/db.js";
+import path from 'path'
 
 // Routes
 import authRoutes from "./routes/authRoutes.js";
@@ -31,7 +32,7 @@ app.use(
 app.use(express.json());
 
 // Serve resume files
-app.use("/uploads/resumes", express.static("uploads/resumes"));
+app.use("/uploads", express.static(path.join(path.resolve(), "uploads")));
 
 // API Routes
 app.use("/api/auth", authRoutes);
