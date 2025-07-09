@@ -50,34 +50,6 @@ const FirstPage = () => {
 
   const navigate = useNavigate();
 
-  // const handleApplyJob = async (jobId) => {
-  //   try {
-  //     const token = localStorage.getItem("token");
-
-  //     const response = await axios.post(
-  //       `http://localhost:9999/api/job/apply/${jobId}`,
-  //       {},
-  //       {
-  //         headers: {
-  //           Authorization: `Bearer ${token}`,
-  //         },
-  //       }
-  //     );
-
-  //     if (response.data.success) {
-  //       alert("🎉 Application submitted!");
-  //     }
-  //   } catch (error) {
-  //     const message = error.response?.data?.message || "Something went wrong";
-  //     alert("⚠️ " + message);
-
-  //     const redirectTo = error.response?.data?.redirectTo;
-  //     if (redirectTo) {
-  //       navigate(redirectTo);
-  //     }
-  //   }
-  // };
-
   const confirmApplyHandler = async () => {
     setShowApplyModal(false);
 
@@ -224,9 +196,7 @@ const FirstPage = () => {
     return (!jobQuery || titleMatch) && (!locationQuery || locationMatch);
   });
 
-  // Initialize component
 
-  // Auto fetch all jobs when search input is cleared
   useEffect(() => {
     if (jobQuery.trim() === "" && locationQuery.trim() === "") {
       fetchAllJobs();
@@ -250,7 +220,8 @@ const FirstPage = () => {
     }
   };
 
-  // Fetch all jobs
+
+
   const fetchAllJobs = async () => {
     try {
       const response = await axios.get(`${API_BASE}/job/all`);
@@ -266,7 +237,8 @@ const FirstPage = () => {
     }
   };
 
-  // Handle job selection
+
+
   const handleJobClick = async (job) => {
     if (!job?._id) return;
 

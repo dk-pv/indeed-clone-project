@@ -1,7 +1,8 @@
 import Job from "../models/jobModel.js";
-import asyncHandler from "express-async-handler";
-import Profile from "../models/profileModel.js";
 import Application from "../models/jobApplicationModel.js";
+import Profile from "../models/profileModel.js";
+import { sendJobApplicationEmail } from "../utils/sendJobApplicationEmail.js";
+import asyncHandler from "express-async-handler";
 
 export const createJob = asyncHandler(async (req, res) => {
   const { company, job, details, payAndBenefits, preferences, status } =
@@ -9,8 +10,6 @@ export const createJob = asyncHandler(async (req, res) => {
 
   const newJob = await Job.create({
     employer: req.user._id,
-
-    // 🔹 Nested structure → Schema match
     company: {
       name: company.name,
       contactPerson: company.contactPerson,
@@ -49,6 +48,8 @@ export const createJob = asyncHandler(async (req, res) => {
   });
 });
 
+
+
 export const getAllJobs = asyncHandler(async (req, res) => {
   const jobs = await Job.find({ status: "published", isDeleted: false })
     .populate("employer", "name email companyName")
@@ -60,6 +61,9 @@ export const getAllJobs = asyncHandler(async (req, res) => {
     data: jobs,
   });
 });
+
+
+
 
 export const getEmployerJobs = asyncHandler(async (req, res) => {
   const jobs = await Job.find({
@@ -74,6 +78,9 @@ export const getEmployerJobs = asyncHandler(async (req, res) => {
   });
 });
 
+
+
+
 export const updateJob = asyncHandler(async (req, res) => {
   let job = await Job.findById(req.params.id);
 
@@ -82,7 +89,7 @@ export const updateJob = asyncHandler(async (req, res) => {
     throw new Error("Job not found");
   }
 
-  // ✅ Check if the job belongs to the logged-in employer
+  // Check if the job belongs to the logged-in employer
   if (job.employer.toString() !== req.user._id.toString()) {
     res.status(401);
     throw new Error("Not authorized to update this job");
@@ -103,6 +110,9 @@ export const updateJob = asyncHandler(async (req, res) => {
   });
 });
 
+
+
+
 export const getAJob = asyncHandler(async (req, res) => {
   const job = await Job.findById(req.params.id).populate(
     "employer",
@@ -119,6 +129,9 @@ export const getAJob = asyncHandler(async (req, res) => {
     data: job,
   });
 });
+
+
+
 
 export const deleteJob = asyncHandler(async (req, res) => {
   const job = await Job.findById(req.params.id);
@@ -145,13 +158,11 @@ export const deleteJob = asyncHandler(async (req, res) => {
 
 
 
-
-
 export const applyJob = async (req, res) => {
   try {
     const jobId = req.params.jobId;
 
-    const job = await Job.findById(jobId);
+    const job = await Job.findById(jobId).populate("employer", "name email");
     if (!job) {
       return res.status(404).json({ success: false, message: "Job not found" });
     }
@@ -173,10 +184,12 @@ export const applyJob = async (req, res) => {
       });
     }
 
+    // Check skill match
     const jobSkills = job.requiredSkills.map((s) => s.toLowerCase());
     const userSkills = profile.skills.map((s) => s.toLowerCase());
-
-    const hasMatchingSkill = jobSkills.some((skill) => userSkills.includes(skill));
+    const hasMatchingSkill = jobSkills.some((skill) =>
+      userSkills.includes(skill)
+    );
 
     if (!hasMatchingSkill) {
       return res.status(400).json({
@@ -185,11 +198,11 @@ export const applyJob = async (req, res) => {
       });
     }
 
+    // Already applied check
     const alreadyApplied = await Application.findOne({
       job: jobId,
       user: req.user._id,
     });
-
     if (alreadyApplied) {
       return res.status(400).json({
         success: false,
@@ -197,11 +210,37 @@ export const applyJob = async (req, res) => {
       });
     }
 
+    // Create application
     await Application.create({
       user: req.user._id,
       job: jobId,
       status: "applied",
     });
+
+    // Extract name/phone/email from profile.personalInfo
+    const name =
+      profile.personalInfo?.firstName ||
+      "" + " " + profile.personalInfo?.lastName ||
+      "";
+    const email = profile.personalInfo?.email || "Not provided";
+    const phone = profile.personalInfo?.phone || "Not provided";
+
+    // Build resume URL
+    const resumePath = profile.resume?.filename
+      ? `http://localhost:9999/uploads/resumes/${profile.resume.filename}`
+      : "";
+
+    // Send email to employer
+    if (job.employer?.email) {
+      await sendJobApplicationEmail({
+        to: job.employer.email,
+        jobTitle: job.job.title,
+        applicantName: name || "Not available",
+        applicantEmail: email,
+        applicantPhone: phone,
+        resumeLink: resumePath,
+      });
+    }
 
     res.status(200).json({
       success: true,
@@ -216,10 +255,11 @@ export const applyJob = async (req, res) => {
   }
 };
 
-
 export const getAppliedJobs = async (req, res) => {
   try {
-    const applications = await Application.find({ user: req.user._id }).populate("job");
+    const applications = await Application.find({
+      user: req.user._id,
+    }).populate("job");
 
     const jobIds = applications.map((app) => app.job._id.toString());
 
@@ -230,6 +270,8 @@ export const getAppliedJobs = async (req, res) => {
     });
   } catch (err) {
     console.error("Error fetching applied jobs:", err);
-    res.status(500).json({ success: false, message: "Failed to fetch applied jobs" });
+    res
+      .status(500)
+      .json({ success: false, message: "Failed to fetch applied jobs" });
   }
 };
