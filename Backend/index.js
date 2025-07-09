@@ -40,6 +40,7 @@ app.use("/api/job", jobRoutes);
 app.use("/api/search", searchRoutes);
 app.use("/api/profile", profileRoutes);
 
+
 // Error handler
 app.use(errorHandler);
 

@@ -254,25 +254,6 @@ export default function AccountForm({
                     }}
                   />
                 </div>
-                <div className="mt-2 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                  <div className="flex items-center space-x-2">
-                    <svg
-                      className="w-4 h-4 text-blue-600"
-                      fill="currentColor"
-                      viewBox="0 0 20 20"
-                    >
-                      <path
-                        fillRule="evenodd"
-                        d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
-                    <p className="text-sm text-blue-700">
-                      For account management communication. Not visible to
-                      jobseekers.
-                    </p>
-                  </div>
-                </div>
               </div>
             </div>
 
@@ -345,49 +326,6 @@ export default function AccountForm({
                   </p>
                 </div>
               )}
-            </div>
-
-            {/* Terms and Privacy Notice */}
-            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-xl p-4">
-              <div className="flex items-start space-x-3">
-                <svg
-                  className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-                <p className="text-sm text-gray-700 leading-relaxed">
-                  <span className="font-semibold">
-                    By continuing, you agree to Indeed's
-                  </span>{" "}
-                  <a
-                    href="/terms"
-                    className="text-blue-700 hover:text-blue-800 hover:underline font-medium transition-colors"
-                  >
-                    Terms of Service
-                  </a>
-                  ,{" "}
-                  <a
-                    href="/privacy"
-                    className="text-blue-700 hover:text-blue-800 hover:underline font-medium transition-colors"
-                  >
-                    Privacy Policy
-                  </a>
-                  , and{" "}
-                  <a
-                    href="/cookie"
-                    className="text-blue-700 hover:text-blue-800 hover:underline font-medium transition-colors"
-                  >
-                    Cookie Policy
-                  </a>
-                  .
-                </p>
-              </div>
             </div>
 
             {/* Continue Button */}

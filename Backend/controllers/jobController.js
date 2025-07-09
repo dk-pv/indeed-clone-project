@@ -1,5 +1,7 @@
 import Job from "../models/jobModel.js";
 import asyncHandler from "express-async-handler";
+import Profile from "../models/profileModel.js";
+import Application from "../models/jobApplicationModel.js";
 
 export const createJob = asyncHandler(async (req, res) => {
   const { company, job, details, payAndBenefits, preferences, status } =
@@ -139,3 +141,78 @@ export const deleteJob = asyncHandler(async (req, res) => {
     message: "Job soft-deleted successfully",
   });
 });
+
+
+
+
+
+
+export const applyJob = async (req, res) => {
+  try {
+    const jobId = req.params.jobId;
+
+    const job = await Job.findById(jobId);
+    if (!job) {
+      return res.status(404).json({ success: false, message: "Job not found" });
+    }
+
+    const profile = await Profile.findOne({ user: req.user._id });
+    if (!profile) {
+      return res.status(400).json({
+        success: false,
+        message: "Please complete your profile before applying",
+        redirectTo: "/profile",
+      });
+    }
+
+    if (!profile.skills || profile.skills.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: "Please update your profile with skills before applying",
+        redirectTo: "/profile",
+      });
+    }
+
+    const jobSkills = job.requiredSkills.map((s) => s.toLowerCase());
+    const userSkills = profile.skills.map((s) => s.toLowerCase());
+
+    const hasMatchingSkill = jobSkills.some((skill) => userSkills.includes(skill));
+
+    if (!hasMatchingSkill) {
+      return res.status(400).json({
+        success: false,
+        message: "Your profile does not match the required skills",
+      });
+    }
+
+    const alreadyApplied = await Application.findOne({
+      job: jobId,
+      user: req.user._id,
+    });
+
+    if (alreadyApplied) {
+      return res.status(400).json({
+        success: false,
+        message: "You have already applied to this job",
+      });
+    }
+
+    await Application.create({
+      user: req.user._id,
+      job: jobId,
+      status: "applied",
+    });
+
+    res.status(200).json({
+      success: true,
+      message: "🎉 Job application submitted successfully!",
+    });
+  } catch (error) {
+    console.error("Error applying to job:", error);
+    res.status(500).json({
+      success: false,
+      message: "Something went wrong",
+    });
+  }
+};
+

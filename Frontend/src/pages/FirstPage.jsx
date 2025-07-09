@@ -15,6 +15,7 @@ import mainImg from "../assets/main.png";
 import FirstFooter from "../components/FirstFooter";
 import { AuthContext } from "../context/AuthContext";
 import axiosInstance from "../../utils/axiosInstance";
+import { useNavigate } from "react-router-dom";
 
 // API endpoints
 const API_BASE = "http://localhost:9999/api";
@@ -39,6 +40,36 @@ const FirstPage = () => {
 
   const [userRole, setUserRole] = useState(null);
   const [profileList, setProfileList] = useState([]);
+
+  const navigate = useNavigate();
+
+  const handleApplyJob = async (jobId) => {
+    try {
+      const token = localStorage.getItem("token");
+
+      const response = await axios.post(
+        `http://localhost:9999/api/job/apply/${jobId}`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (response.data.success) {
+        alert("🎉 Application submitted!");
+      }
+    } catch (error) {
+      const message = error.response?.data?.message || "Something went wrong";
+      alert("⚠️ " + message);
+
+      const redirectTo = error.response?.data?.redirectTo;
+      if (redirectTo) {
+        navigate(redirectTo);
+      }
+    }
+  };
 
   useEffect(() => {
     const delayDebounce = setTimeout(() => {
@@ -596,14 +627,20 @@ const FirstPage = () => {
 
                     {/* Action Buttons */}
                     <div className="flex gap-3">
-                      <button className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2 rounded-lg transition-colors duration-200">
+                      <button
+                        disabled={!selectedJobDetails?._id}
+                        onClick={() => handleApplyJob(selectedJobDetails._id)}
+                        className={`${
+                          !selectedJobDetails?._id
+                            ? "bg-gray-400 cursor-not-allowed"
+                            : "bg-blue-600 hover:bg-blue-700"
+                        } text-white font-semibold px-6 py-2 rounded-lg transition-colors duration-200`}
+                      >
                         Apply now
                       </button>
+
                       <button className="border border-gray-300 hover:border-gray-400 text-gray-700 font-semibold px-4 py-2 rounded-lg transition-colors duration-200">
                         <Bookmark className="w-4 h-4" />
-                      </button>
-                      <button className="border border-gray-300 hover:border-gray-400 text-gray-700 font-semibold px-4 py-2 rounded-lg transition-colors duration-200">
-                        <Eye className="w-4 h-4" />
                       </button>
                       <button className="border border-gray-300 hover:border-gray-400 text-gray-700 font-semibold px-4 py-2 rounded-lg transition-colors duration-200">
                         <Share2 className="w-4 h-4" />
@@ -716,19 +753,6 @@ const FirstPage = () => {
                         </p>
                       </div>
                     </div>
-
-                    {/* Company Info */}
-                    {selectedJobDetails.company && (
-                      <div>
-                        <h3 className="text-lg font-semibold text-gray-800 mb-3">
-                          About {selectedJobDetails.company.name}
-                        </h3>
-                        <p className="text-gray-700">
-                          {selectedJobDetails.company.description ||
-                            "Company information not available."}
-                        </p>
-                      </div>
-                    )}
                   </div>
                 </div>
               ) : (
