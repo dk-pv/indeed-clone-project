@@ -139,20 +139,20 @@ const jobSchema = new mongoose.Schema({
     resumeRequired: { type: Boolean },
     contactCandidates: { type: Boolean },
   },
-     requiredSkills: {
-      type: [String], // Array of strings
-      required: false,
-      default: [],
-    },
-    graduateRequired: {
-      type: Boolean,
-      required: false,
-      default: false,
-    },
+  requiredSkills: {
+    type: [String], // Array of strings
+    required: false,
+    default: [],
+  },
+  graduateRequired: {
+    type: Boolean,
+    required: false,
+    default: false,
+  },
   isDeleted: {
-  type: Boolean,
-  default: false
-},
+    type: Boolean,
+    default: false,
+  },
 
   status: {
     type: String,

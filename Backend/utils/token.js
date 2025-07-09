@@ -1,5 +1,3 @@
-
-
 import jwt from "jsonwebtoken";
 export const generateToken = (payload, expiresIn = "7d") => {
   if (!process.env.JWT_SECRET) {
@@ -31,15 +29,14 @@ export const generateEmployerToken = (user) => {
     throw new Error("Invalid employer user data");
   }
 
-    const payload = {
+  const payload = {
     _id: user._id,
     email: user.email,
     role: user.role || "employer",
   };
 
-  return generateToken(payload, "30d"); 
+  return generateToken(payload, "30d");
 };
-
 
 export const verifyToken = (token) => {
   if (!process.env.JWT_SECRET) {
@@ -52,7 +49,7 @@ export const verifyToken = (token) => {
 
   try {
     return jwt.verify(token, process.env.JWT_SECRET, {
-      algorithms: ["HS256"], 
+      algorithms: ["HS256"],
       issuer: "job-portal-api",
     });
   } catch (error) {
@@ -60,20 +57,3 @@ export const verifyToken = (token) => {
     throw new Error("Invalid or expired token");
   }
 };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

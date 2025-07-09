@@ -24,40 +24,6 @@ export const requestOTP = async (req, res) => {
   }
 };
 
-// export const verifyOTP = async (req, res) => {
-//   try {
-//     const { email, otp } = req.body;
-//     const tempData = tempUserStorage[email];
-//     if (!tempData || tempData.otp !== otp) {
-//       return res.status(400).json({ message: "Invalid or expired OTP" });
-//     }
-//     let user = await User.findOne({ email });
-//     if (!user) {
-//       user = await User.create({
-//         email,
-//         isVerified: true,
-//         loginType: "email",
-//         role: tempData.role || null,
-//       });
-//     }
-//     delete tempUserStorage[email];
-//     const token = generateEmployerToken(user);
-//     res.status(200).json({
-//       message: "OTP verified",
-//       token,
-//       user: {
-//         id: user._id,
-//         email: user.email,
-//         role: user.role,
-//       },
-//     });
-//   } catch (error) {
-//     res
-//       .status(500)
-//       .json({ message: "OTP verification failed", error: error.message });
-//   }
-// };
-
 export const verifyOTP = async (req, res) => {
   try {
     const { email, otp } = req.body;
@@ -83,7 +49,7 @@ export const verifyOTP = async (req, res) => {
     delete tempUserStorage[email];
 
     if (isNewUser) {
-      await sendWelcomeEmail(email, user.role); // 👈 send welcome email
+      await sendWelcomeEmail(email, user.role); // send welcome email
     }
 
     const token = generateEmployerToken(user);
@@ -104,48 +70,6 @@ export const verifyOTP = async (req, res) => {
     });
   }
 };
-
-
-// export const googleLogin = async (req, res) => {
-//   try {
-//     const { token, role } = req.body;
-//     const ticket = await client.verifyIdToken({
-//       idToken: token,
-//       audience: process.env.GOOGLE_CLIENT_ID,
-//     });
-
-//     const payload = ticket.getPayload();
-//     const { email } = payload;
-//     let user = await User.findOne({ email });
-
-//     if (!user) {
-//       user = new User({
-//         email,
-//         loginType: "google",
-//         isVerified: true,
-//         role: role || "employer",
-//       });
-//     } else if (!user.role && role) {
-//       user.role = role;
-//     }
-//     await user.save();
-//     const jwtToken = generateEmployerToken(user);
-//     res.status(200).json({
-//       message: "Google login successful",
-//       token: jwtToken,
-//       user: {
-//         id: user._id,
-//         email: user.email,
-//         role: user.role,
-//       },
-//     });
-//   } catch (error) {
-//     res.status(400).json({
-//       message: "Google login failed",
-//       error: error.message,
-//     });
-//   }
-// };
 
 export const googleLogin = async (req, res) => {
   try {
@@ -177,7 +101,7 @@ export const googleLogin = async (req, res) => {
     await user.save();
 
     if (isNewUser) {
-      await sendWelcomeEmail(email, user.role); // 👈 send welcome email
+      await sendWelcomeEmail(email, user.role); // send welcome email
     }
 
     const jwtToken = generateEmployerToken(user);

@@ -1,6 +1,5 @@
 import Profile from "../models/profileModel.js";
 
-
 export const getAProfile = async (req, res) => {
   try {
     const profile = await Profile.findOne({ user: req.user._id });
@@ -70,7 +69,7 @@ export const upsertProfile = async (req, res) => {
     if (resumeData) update.resume = resumeData;
 
     const profile = await Profile.findOneAndUpdate(
-      { user: req.user._id }, 
+      { user: req.user._id },
       update,
       { new: true, upsert: true }
     );
@@ -82,8 +81,6 @@ export const upsertProfile = async (req, res) => {
     res.status(500).json({ success: false, message: error.message });
   }
 };
-
-
 
 // GET /api/profiles — only for employers
 export const getAllProfiles = async (req, res) => {

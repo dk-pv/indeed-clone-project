@@ -3,9 +3,9 @@ import {
   requestOTP,
   verifyOTP,
   googleLogin,
-  getProfile
+  getProfile,
 } from "../controllers/authController.js";
-import { verifyToken } from "../middleware/authMiddleware.js"; // ✅ fixed here
+import { verifyToken } from "../middleware/authMiddleware.js"; 
 
 const router = express.Router();
 

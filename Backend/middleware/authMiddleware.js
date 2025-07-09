@@ -1,5 +1,3 @@
-
-
 import jwt from "jsonwebtoken";
 export const verifyToken = (req, res, next) => {
   const authHeader = req.headers.authorization;
@@ -38,27 +36,24 @@ export const verifyToken = (req, res, next) => {
   }
 };
 
-
-
 export const verifyEmployer = (req, res, next) => {
-  if (req.user && req.user.role === 'employer') {
+  if (req.user && req.user.role === "employer") {
     next();
   } else {
     return res.status(403).json({
       success: false,
-      message: "Access denied. Employer privileges required"
+      message: "Access denied. Employer privileges required",
     });
   }
 };
 
-
 export const verifyAdmin = (req, res, next) => {
-  if (req.user && req.user.role === 'admin') {
+  if (req.user && req.user.role === "admin") {
     next();
   } else {
     return res.status(403).json({
       success: false,
-      message: "Access denied. Admin privileges required"
+      message: "Access denied. Admin privileges required",
     });
   }
 };

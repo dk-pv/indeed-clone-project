@@ -13,7 +13,6 @@ export default function AccountForm({
 }) {
   const { alert, showAlert, hideAlert } = useAlert();
 
-  // Enhanced exception handling for form submission
   const handleFormSubmit = async (data) => {
     try {
       // Validate data exists

@@ -1,6 +1,5 @@
 import Job from "../models/jobModel.js";
 
-
 export const searchJobs = async (req, res) => {
   const { job, location } = req.query;
   const filter = { isDeleted: false };
@@ -16,47 +15,6 @@ export const searchJobs = async (req, res) => {
     res.status(500).json({ success: false, error: "Search failed" });
   }
 };
-
-
-
-// // Job title suggestion from posted jobs
-// export const getJobTitleSuggestions = async (req, res) => {
-//   const { query } = req.query;
-
-//   try {
-//     const jobs = await Job.find({
-//       "job.title": { $regex: query, $options: "i" },
-//     })
-//       .limit(10)
-//       .select("job.title");
-
-//     const uniqueTitles = [...new Set(jobs.map((job) => job.job.title))];
-
-//     res.status(200).json({ success: true, data: uniqueTitles });
-//   } catch (error) {
-//     res.status(500).json({ success: false, message: "Error fetching job titles" });
-//   }
-// };
-
-// //  Location suggestion from posted jobs
-// export const getLocationSuggestions = async (req, res) => {
-//   const { query } = req.query;
-
-//   try {
-//     const jobs = await Job.find({
-//       "job.location.city": { $regex: query, $options: "i" },
-//     })
-//       .limit(10)
-//       .select("job.location.city");
-
-//     const uniqueCities = [...new Set(jobs.map((job) => job.job.location.city))];
-
-//     res.status(200).json({ success: true, data: uniqueCities });
-//   } catch (error) {
-//     res.status(500).json({ success: false, message: "Error fetching locations" });
-//   }
-// };
-
 
 export const getJobTitleSuggestions = async (req, res) => {
   const { query } = req.query;
@@ -99,4 +57,3 @@ export const getLocationSuggestions = async (req, res) => {
       .json({ success: false, message: "Error fetching locations" });
   }
 };
-
