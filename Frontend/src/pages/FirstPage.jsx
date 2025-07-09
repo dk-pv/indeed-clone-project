@@ -16,7 +16,6 @@ import FirstFooter from "../components/FirstFooter";
 import { AuthContext } from "../context/AuthContext";
 import axiosInstance from "../../utils/axiosInstance";
 
-
 // API endpoints
 const API_BASE = "http://localhost:9999/api";
 
@@ -86,63 +85,54 @@ const FirstPage = () => {
   }, []);
 
   useEffect(() => {
-  if (isLoggedIn && userRole === "employer") {
-    const storedUser = localStorage.getItem("user");
-    if (storedUser) {
-      try {
-        const user = JSON.parse(storedUser);
-        if (user.token) {
-          fetchAllProfiles(user.token);
-        } else {
-          console.warn("⚠️ Token missing in stored user.");
+    if (isLoggedIn && userRole === "employer") {
+      const storedUser = localStorage.getItem("user");
+      if (storedUser) {
+        try {
+          const user = JSON.parse(storedUser);
+          if (user.token) {
+            fetchAllProfiles(user.token);
+          } else {
+            console.warn("⚠️ Token missing in stored user.");
+          }
+        } catch (err) {
+          console.error("⚠️ Failed to parse user from localStorage:", err);
         }
-      } catch (err) {
-        console.error("⚠️ Failed to parse user from localStorage:", err);
       }
     }
-  }
-}, [isLoggedIn, userRole]);
+  }, [isLoggedIn, userRole]);
 
+  const fetchAllProfiles = async () => {
+    try {
+      const response = await axiosInstance.get("/profile/all");
 
+      console.log("Fetched profiles from API:", response.data);
 
-const fetchAllProfiles = async () => {
-  try {
-    const response = await axiosInstance.get("/profile/all");
-
-    console.log("Fetched profiles from API:", response.data);
-
-    if (response.data.success) {
-      setProfileList(response.data.data);
+      if (response.data.success) {
+        setProfileList(response.data.data);
+      }
+    } catch (error) {
+      console.error("Failed to fetch profiles:", error);
     }
-  } catch (error) {
-    console.error("Failed to fetch profiles:", error);
-  }
-};
+  };
 
+  useEffect(() => {
+    checkAuthStatus(); // 👈 this must set userRole and isLoggedIn
+    fetchAllJobs();
+  }, []);
 
-useEffect(() => {
-  checkAuthStatus(); // 👈 this must set userRole and isLoggedIn
-  fetchAllJobs();
-}, []);
+  const filteredProfiles = profileList.filter((profile) => {
+    const titleMatch = (profile?.skills || []).some((s) =>
+      s.toLowerCase().includes(jobQuery.toLowerCase())
+    );
+    const locationMatch = profile?.personalInfo?.location
+      ?.toLowerCase()
+      .includes(locationQuery.toLowerCase());
 
-
-
-
-
- const filteredProfiles = profileList.filter((profile) => {
-  const titleMatch = (profile?.skills || []).some((s) =>
-    s.toLowerCase().includes(jobQuery.toLowerCase())
-  );
-  const locationMatch = profile?.personalInfo?.location
-    ?.toLowerCase()
-    .includes(locationQuery.toLowerCase());
-
-  return (!jobQuery || titleMatch) && (!locationQuery || locationMatch);
-});
-
+    return (!jobQuery || titleMatch) && (!locationQuery || locationMatch);
+  });
 
   // Initialize component
-
 
   // Auto fetch all jobs when search input is cleared
   useEffect(() => {
@@ -151,24 +141,22 @@ useEffect(() => {
     }
   }, [jobQuery, locationQuery]);
 
-
-const checkAuthStatus = () => {
-  const storedUser = localStorage.getItem("user");
-  if (storedUser) {
-    try {
-      const user = JSON.parse(storedUser);
-      setIsLoggedIn(true);
-      setUserRole(user?.role);
-      if (user?.token && user?.role === "employer") {
-        fetchAllProfiles(user.token); // pass token directly
+  const checkAuthStatus = () => {
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      try {
+        const user = JSON.parse(storedUser);
+        setIsLoggedIn(true);
+        setUserRole(user?.role);
+        if (user?.token && user?.role === "employer") {
+          fetchAllProfiles(user.token); // pass token directly
+        }
+      } catch (error) {
+        console.error("Failed to parse stored user:", error);
+        localStorage.removeItem("user");
       }
-    } catch (error) {
-      console.error("Failed to parse stored user:", error);
-      localStorage.removeItem("user");
     }
-  }
-};
-
+  };
 
   // Fetch all jobs
   const fetchAllJobs = async () => {
@@ -206,7 +194,7 @@ const checkAuthStatus = () => {
     }
   };
 
-    useEffect(() => {
+  useEffect(() => {
     checkAuthStatus();
     fetchAllJobs();
   }, []);
@@ -415,128 +403,120 @@ const checkAuthStatus = () => {
         )}
 
         {isLoggedIn && userRole === "employer" && (
-  <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
-    {/* Profile Cards (Left) */}
-    <div className="lg:col-span-2 space-y-4 max-h-screen overflow-y-auto">
-      <h2 className="text-lg font-semibold text-gray-800 mb-4">
-        Matched Candidates
-      </h2>
+          <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+            {/* Profile Cards (Left) */}
+            <div className="lg:col-span-2 space-y-4 max-h-screen overflow-y-auto">
+              <h2 className="text-lg font-semibold text-gray-800 mb-4">
+                Matched Candidates
+              </h2>
 
-      {filteredProfiles.length > 0 ? (
-        filteredProfiles.map((profile) => (
-          <div
-            key={profile._id}
-            onClick={() => setSelectedJob(profile)}
-            className={`bg-white border rounded-lg shadow-sm p-4 cursor-pointer transition-all duration-200 hover:shadow-md ${
-              selectedJob?._id === profile._id
-                ? "border-blue-500 bg-blue-50"
-                : "border-gray-200 hover:border-gray-300"
-            }`}
-          >
-            <div className="flex justify-between items-start mb-2">
-              <h3 className="text-lg font-semibold text-gray-800 hover:text-blue-600">
-                {profile.personalInfo?.firstName} {profile.personalInfo?.lastName}
-              </h3>
-              <User className="w-5 h-5 text-gray-400" />
-            </div>
+              {filteredProfiles.length > 0 ? (
+                filteredProfiles.map((profile) => (
+                  <div
+                    key={profile._id}
+                    onClick={() => setSelectedJob(profile)}
+                    className={`bg-white border rounded-lg shadow-sm p-4 cursor-pointer transition-all duration-200 hover:shadow-md ${
+                      selectedJob?._id === profile._id
+                        ? "border-blue-500 bg-blue-50"
+                        : "border-gray-200 hover:border-gray-300"
+                    }`}
+                  >
+                    <div className="flex justify-between items-start mb-2">
+                      <h3 className="text-lg font-semibold text-gray-800 hover:text-blue-600">
+                        {profile.personalInfo?.firstName}{" "}
+                        {profile.personalInfo?.lastName}
+                      </h3>
+                      <User className="w-5 h-5 text-gray-400" />
+                    </div>
 
-            <p className="text-gray-600 text-sm mb-2">
-              {profile.personalInfo?.location}
-            </p>
+                    <p className="text-gray-600 text-sm mb-2">
+                      {profile.personalInfo?.location}
+                    </p>
 
-            <p className="text-gray-700 text-sm mb-3 line-clamp-2">
-              {profile.objective || "No summary provided."}
-            </p>
-
-            <div className="flex justify-between items-center text-sm text-gray-500">
-              <span>{profile.skills?.length || 0} skills</span>
-              <span>{profile.education?.[0]?.degree || "—"}</span>
-            </div>
-          </div>
-        ))
-      ) : (
-        <div className="text-center text-gray-500 py-20">
-          No matching profiles found.
-        </div>
-      )}
-    </div>
-
-    {/* Profile Details (Right) - Show only when profiles exist */}
-    {filteredProfiles.length > 0 && (
-      <div className="lg:col-span-3 bg-white rounded-lg shadow-sm border border-gray-200">
-        {selectedJob ? (
-          <div className="p-6">
-            <h1 className="text-2xl font-bold text-gray-800 mb-2">
-              {selectedJob.personalInfo?.firstName}{" "}
-              {selectedJob.personalInfo?.lastName}
-            </h1>
-            <p className="text-gray-600 mb-2">
-              {selectedJob.personalInfo?.email} • {selectedJob.personalInfo?.location}
-            </p>
-            <p className="text-gray-600 text-sm mb-4">
-              📞 {selectedJob.personalInfo?.phone}
-            </p>
-
-            <div className="mb-6">
-              <h3 className="text-lg font-semibold text-gray-800 mb-3">
-                Profile Summary
-              </h3>
-              <p className="text-gray-700">
-                {selectedJob.objective || "No summary provided."}
-              </p>
-            </div>
-
-            {selectedJob.skills?.length > 0 && (
-              <div className="mb-6">
-                <h3 className="text-lg font-semibold text-gray-800 mb-3">Skills</h3>
-                <div className="flex flex-wrap gap-2">
-                  {selectedJob.skills.map((skill, index) => (
-                    <span
-                      key={index}
-                      className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-blue-100 text-blue-800"
-                    >
-                      {skill}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {selectedJob.education?.length > 0 && (
-              <div className="mb-6">
-                <h3 className="text-lg font-semibold text-gray-800 mb-3">Education</h3>
-                {selectedJob.education.map((edu, idx) => (
-                  <div key={idx} className="text-sm text-gray-700 mb-1">
-                    🎓 {edu.degree}, {edu.school} ({edu.graduationYear})
+                    <div className="flex justify-between items-center text-sm text-gray-500">
+                      <span>{profile.skills?.length || 0} skills</span>
+                      <span>{profile.education?.[0]?.degree || "—"}</span>
+                    </div>
                   </div>
-                ))}
-              </div>
-            )}
+                ))
+              ) : (
+                <div className="text-center text-gray-500 py-20">
+                  No matching profiles found.
+                </div>
+              )}
+            </div>
 
-            {selectedJob.resume?.filename && (
-              <div className="mt-4">
-                📄 Resume:{" "}
-                <a
-                  href={`http://localhost:9999/uploads/resumes/${selectedJob.resume.filename}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-blue-600 underline"
-                >
-                  View Resume
-                </a>
+            {/* Profile Details (Right) - Show only when profiles exist */}
+            {filteredProfiles.length > 0 && (
+              <div className="lg:col-span-3 bg-white rounded-lg shadow-sm border border-gray-200">
+                {selectedJob ? (
+                  <div className="p-6">
+                    <h1 className="text-2xl font-bold text-gray-800 mb-2">
+                      {selectedJob.personalInfo?.firstName}{" "}
+                      {selectedJob.personalInfo?.lastName}
+                    </h1>
+                    <p className="text-gray-600 mb-2">
+                      {selectedJob.personalInfo?.email} •{" "}
+                      {selectedJob.personalInfo?.location}
+                    </p>
+                    <p className="text-gray-600 text-sm mb-4">
+                      📞 {selectedJob.personalInfo?.phone}
+                    </p>
+
+                    {selectedJob.skills?.length > 0 && (
+                      <div className="mb-6">
+                        <h3 className="text-lg font-semibold text-gray-800 mb-3">
+                          Skills
+                        </h3>
+                        <div className="flex flex-wrap gap-2">
+                          {selectedJob.skills.map((skill, index) => (
+                            <span
+                              key={index}
+                              className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-blue-100 text-blue-800"
+                            >
+                              {skill}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {selectedJob.education?.length > 0 && (
+                      <div className="mb-6">
+                        <h3 className="text-lg font-semibold text-gray-800 mb-3">
+                          Education
+                        </h3>
+                        {selectedJob.education.map((edu, idx) => (
+                          <div key={idx} className="text-sm text-gray-700 mb-1">
+                            🎓 {edu.degree}, {edu.school} ({edu.graduationYear})
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    {selectedJob.resume?.filename && (
+                      <div className="mt-4">
+                        📄 Resume:{" "}
+                        <a
+                          href={`http://localhost:9999/uploads/resumes/${selectedJob.resume.filename}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-blue-600 underline"
+                        >
+                          View Resume
+                        </a>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <div className="p-8 text-center text-gray-500">
+                    <p>Select a candidate to view profile</p>
+                  </div>
+                )}
               </div>
             )}
-          </div>
-        ) : (
-          <div className="p-8 text-center text-gray-500">
-            <p>Select a candidate to view profile</p>
           </div>
         )}
-      </div>
-    )}
-  </div>
-)}
-
 
         {/* Job List and Details for Logged In Users */}
         {isLoggedIn && userRole !== "employer" && (
