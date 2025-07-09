@@ -1,38 +1,43 @@
 
 
 import jwt from "jsonwebtoken";
-
 export const verifyToken = (req, res, next) => {
   const authHeader = req.headers.authorization;
 
-  if (authHeader && authHeader.startsWith("Bearer ")) {
-    const token = authHeader.split(" ")[1];
-
-    try {
-      const decoded = jwt.verify(token, process.env.JWT_SECRET);
-
-      req.user = {
-        _id: decoded._id,
-        email: decoded.email,
-        role: decoded.role,
-        companyName: decoded.companyName
-      };
-
-      next();
-    } catch (error) {
-      console.error("JWT Verify Error:", error);
-      return res.status(401).json({
-        success: false,
-        message: "Invalid or expired token"
-      });
-    }
-  } else {
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
     return res.status(401).json({
       success: false,
-      message: "Authorization token required"
+      message: "Authorization token missing or improperly formatted",
+    });
+  }
+
+  const token = authHeader.split(" ")[1];
+
+  if (!token || token.split(".").length !== 3) {
+    return res.status(401).json({
+      success: false,
+      message: "Malformed token format",
+    });
+  }
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    req.user = {
+      _id: decoded._id,
+      email: decoded.email,
+      role: decoded.role,
+      companyName: decoded.companyName,
+    };
+    next();
+  } catch (error) {
+    console.error("JWT Verify Error:", error.message, "| Token:", token);
+    return res.status(401).json({
+      success: false,
+      message: "Invalid or expired token",
     });
   }
 };
+
 
 
 export const verifyEmployer = (req, res, next) => {

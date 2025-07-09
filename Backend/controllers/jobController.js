@@ -33,6 +33,8 @@ export const createJob = asyncHandler(async (req, res) => {
     schedules: details.schedules,
     numberOfPeople: details.hiringCount,
     recruitmentTimeline: details.timeline,
+    requiredSkills: details.requiredSkills || [],
+    graduateRequired: details.graduateRequired || false,
 
     payRange: {
       min: payAndBenefits.minSalary,

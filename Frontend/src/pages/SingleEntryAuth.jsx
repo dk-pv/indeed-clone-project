@@ -124,12 +124,12 @@ const SingleEntryAuth = () => {
       const { token, user } = res.data;
 
       if (token && user) {
-        localStorage.setItem("token", token);
-        localStorage.setItem("user", JSON.stringify(user));
+        const userWithToken = { ...user, token };
+        localStorage.setItem("user", JSON.stringify(userWithToken));
         localStorage.removeItem("userRole");
 
         showAlert("success", "OTP Verified. Logged in!");
-        setTimeout(() => navigate("/" , {replace : true}), 1000);
+        setTimeout(() => navigate("/", { replace: true }), 1000);
       } else {
         setError("Invalid response from server");
         showAlert("error", "Invalid response from server");
@@ -193,12 +193,12 @@ const SingleEntryAuth = () => {
       const { token: jwtToken, user } = res.data;
 
       if (jwtToken && user) {
-        localStorage.setItem("token", jwtToken);
-        localStorage.setItem("user", JSON.stringify(user));
+        const userWithToken = { ...user, token: jwtToken };
+        localStorage.setItem("user", JSON.stringify(userWithToken));
         localStorage.removeItem("userRole");
 
         showAlert("success", "Google login successful");
-        setTimeout(() => navigate("/" , {replace : true}), 1000);
+        setTimeout(() => navigate("/", { replace: true }), 1000);
       } else {
         showAlert("error", "Invalid response from server");
       }

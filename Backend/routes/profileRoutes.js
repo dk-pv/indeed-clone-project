@@ -1,6 +1,6 @@
 import express from "express";
-import { getProfile, upsertProfile } from "../controllers/profileController.js";
-import { verifyToken } from "../middleware/authMiddleware.js";
+import { getAProfile, upsertProfile  , getAllProfiles} from "../controllers/profileController.js";
+import { verifyToken ,verifyEmployer } from "../middleware/authMiddleware.js";
 import multer from "multer";
 import path from "path";
 
@@ -28,7 +28,9 @@ const upload = multer({
 
 const router = express.Router();
 
-router.get("/", verifyToken, getProfile);
+router.get("/", verifyToken, getAProfile);
 router.post("/", verifyToken, upload.single("resume"), upsertProfile);
+router.get("/all", verifyToken, verifyEmployer, getAllProfiles); // 👈 only employers
+
 
 export default router;

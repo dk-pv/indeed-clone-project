@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 import {
   User,
   GraduationCap,
@@ -23,9 +24,18 @@ const ProfilePage = () => {
   const [showSuccess, setShowSuccess] = useState(false);
   const [saving, setSaving] = useState(false);
   const [resumeFile, setResumeFile] = useState(null);
+    const navigate = useNavigate();
 
-const fetchProfile = async () => {
+
+  const fetchProfile = async () => {
   const token = localStorage.getItem("token");
+
+  if (!token) {
+    console.warn("⚠️ No JWT token found in localStorage.");
+    setLoading(false); // stop loading to avoid infinite spinner
+    return;
+  }
+
   try {
     const res = await axios.get("http://localhost:9999/api/profile", {
       headers: {
@@ -33,10 +43,9 @@ const fetchProfile = async () => {
       },
     });
 
-    const data = res.data.data; // ✅ Move this line up
+    const data = res.data.data;
 
     if (!data || !data.personalInfo) {
-      // create empty profile state for new user
       const emptyProfile = {
         personalInfo: {},
         education: [],
@@ -68,13 +77,23 @@ const fetchProfile = async () => {
   } catch (err) {
     console.error("Error fetching profile:", err);
   } finally {
-    setLoading(false);
+    setLoading(false); // ✅ always stop loading
   }
 };
 
+useEffect(() => {
+  fetchProfile(); // always try to fetch
+}, []);
+
 
   useEffect(() => {
-    fetchProfile();
+    const token = localStorage.getItem("token");
+    if (!token) {
+      console.warn("⚠️ No JWT token found in localStorage.");
+      navigate("/signin", { replace: true }); // 🔁 redirect to login
+    } else {
+      fetchProfile();
+    }
   }, []);
 
   const handleEdit = () => {
@@ -180,15 +199,15 @@ const fetchProfile = async () => {
   };
 
   if (loading || !profile) {
-  return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-      <div className="text-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-        <p className="text-gray-600">Loading your profile...</p>
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading your profile...</p>
+        </div>
       </div>
-    </div>
-  );
-}
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">

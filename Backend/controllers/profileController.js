@@ -1,8 +1,7 @@
 import Profile from "../models/profileModel.js";
 
-// @desc   Get user profile
-// controllers/profileController.js
-export const getProfile = async (req, res) => {
+
+export const getAProfile = async (req, res) => {
   try {
     const profile = await Profile.findOne({ user: req.user._id });
     if (!profile) {
@@ -81,5 +80,18 @@ export const upsertProfile = async (req, res) => {
     console.error("Profile Error:", error.message);
     console.error(error.stack);
     res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+
+
+// GET /api/profiles — only for employers
+export const getAllProfiles = async (req, res) => {
+  try {
+    const profiles = await Profile.find().populate("user", "email role");
+    res.status(200).json({ success: true, data: profiles });
+  } catch (error) {
+    console.error("Error fetching profiles:", error);
+    res.status(500).json({ success: false, message: "Server error" });
   }
 };

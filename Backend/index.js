@@ -31,7 +31,7 @@ app.use(
 
 app.use(express.json());
 
-// Serve resume files
+// resume files
 app.use("/uploads", express.static(path.join(path.resolve(), "uploads")));
 
 // API Routes
@@ -40,7 +40,7 @@ app.use("/api/job", jobRoutes);
 app.use("/api/search", searchRoutes);
 app.use("/api/profile", profileRoutes);
 
-// Error handler (⚠️ always after routes)
+// Error handler
 app.use(errorHandler);
 
 // Start server

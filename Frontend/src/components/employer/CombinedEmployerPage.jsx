@@ -51,6 +51,8 @@ export default function EmployerPage() {
       schedules: [],
       numberOfPeople: "",
       recruitmentTimeline: "",
+      requiredSkills: [],
+      graduateRequired: false,
 
       // Pay & Benefits
       payRange: { min: "", max: "" },
@@ -155,6 +157,8 @@ export default function EmployerPage() {
         schedules: formData.schedules,
         hiringCount: formData.numberOfPeople,
         timeline: formData.recruitmentTimeline,
+        requiredSkills: formData.requiredSkills || [],
+        graduateRequired: formData.graduateRequired || false,
       },
       payAndBenefits: {
         minSalary: formData.payRange.min,

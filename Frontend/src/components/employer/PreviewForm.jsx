@@ -274,6 +274,53 @@ export default function PreviewForm({
                     {renderFieldValue(formData?.address)}
                   </p>
                 </div>
+                {/* Place this inside Job Information block below Job Description */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4">
+                  {/* Required Skills */}
+                  <div className="space-y-2">
+                    <p className="text-sm font-medium text-gray-500 uppercase tracking-wide">
+                      Required Skills
+                    </p>
+                    <div className="bg-white p-3 rounded-lg border border-gray-200">
+                      {formData?.requiredSkills ? (
+                        <ul className="list-disc list-inside space-y-1">
+                          {formData.requiredSkills
+                            .split(",")
+                            .map((skill, index) => (
+                              <li key={index} className="text-gray-700 text-sm">
+                                {skill.trim()}
+                              </li>
+                            ))}
+                        </ul>
+                      ) : (
+                        <span className="text-gray-500 italic">
+                          Not specified
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Graduate Degree Required */}
+                  <div className="space-y-2">
+                    <p className="text-sm font-medium text-gray-500 uppercase tracking-wide">
+                      Graduate Degree Required
+                    </p>
+                    <div className="flex items-center space-x-2">
+                      <div
+                        className={`w-3 h-3 rounded-full ${
+                          formData?.graduateRequired
+                            ? "bg-green-500"
+                            : "bg-gray-300"
+                        }`}
+                      ></div>
+                      <span className="text-sm">
+                        {formData?.graduateRequired
+                          ? "Yes, graduate degree is required"
+                          : "Not required"}
+                      </span>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
 
