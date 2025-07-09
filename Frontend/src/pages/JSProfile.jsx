@@ -17,7 +17,7 @@ import {
 } from "lucide-react";
 
 const ProfilePage = () => {
-  const [profile, setProfile] = useState(null);
+   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [editMode, setEditMode] = useState(false);
   const [formData, setFormData] = useState({});
@@ -26,73 +26,55 @@ const ProfilePage = () => {
   const [resumeFile, setResumeFile] = useState(null);
   const navigate = useNavigate();
 
-  const fetchProfile = async () => {
+  useEffect(() => {
     const token = localStorage.getItem("token");
-
-    if (!token) {
-      console.warn("⚠️ No JWT token found in localStorage.");
-      setLoading(false); // stop loading to avoid infinite spinner
-      return;
-    }
-
-    try {
-      const res = await axios.get("http://localhost:9999/api/profile", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      const data = res.data.data;
-
-      if (!data || !data.personalInfo) {
-        const emptyProfile = {
-          personalInfo: {},
-          education: [],
-          skills: [],
-          resume: null,
-          profileCompleteness: 0,
-        };
-        setProfile(emptyProfile);
-        setFormData({
-          firstName: "",
-          lastName: "",
-          email: "",
-          phone: "",
-          location: "",
-          education: [],
-          skills: "",
-          resume: null,
+    const fetchProfile = async () => {
+      try {
+        const res = await axios.get("http://localhost:9999/api/profile", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         });
-        return;
+
+        const data = res.data.data;
+
+        if (!data || !data.personalInfo) {
+          const emptyProfile = {
+            personalInfo: {},
+            education: [],
+            skills: [],
+            resume: null,
+            profileCompleteness: 0,
+          };
+          setProfile(emptyProfile);
+          setFormData({
+            firstName: "",
+            lastName: "",
+            email: "",
+            phone: "",
+            location: "",
+            education: [],
+            skills: "",
+            resume: null,
+          });
+        } else {
+          setProfile(data);
+          setFormData({
+            ...data.personalInfo,
+            education: data.education,
+            skills: data.skills.join(", "),
+            resume: data.resume,
+          });
+        }
+      } catch (err) {
+        console.error("❌ Error fetching profile:", err);
+      } finally {
+        setLoading(false);
       }
+    };
 
-      setProfile(data);
-      setFormData({
-        ...data.personalInfo,
-        education: data.education,
-        skills: data.skills.join(", "),
-        resume: data.resume,
-      });
-    } catch (err) {
-      console.error("Error fetching profile:", err);
-    } finally {
-      setLoading(false); //  always stop loading
-    }
-  };
-
-  useEffect(() => {
-    fetchProfile(); // always try to fetch
-  }, []);
-
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      console.warn("⚠️ No JWT token found in localStorage.");
-      navigate("/signin", { replace: true }); //redirect to login
-    } else {
-      fetchProfile();
-    }
-  }, []);
+    fetchProfile();
+  }, [navigate]);
 
   const handleEdit = () => {
     setEditMode(true);

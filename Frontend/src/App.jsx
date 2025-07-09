@@ -14,7 +14,6 @@ import ProtectedPublic from "./components/ProtectedPublic";
 import EmployerPost from "./pages/EmployerPost";
 import EmployerPostEdit from "./pages/EmployerPostEdit";
 import JSProfile from "./pages/JSProfile";
-import FirstPage2 from './pages/Home/Firstpage'
 
 const router = createBrowserRouter([
   {
@@ -24,10 +23,6 @@ const router = createBrowserRouter([
       {
         path: "",
         element: <FirstPage />,
-      },
-      {
-        path:'/home',
-        element : <FirstPage2/>
       },
       {
         path: "/role",

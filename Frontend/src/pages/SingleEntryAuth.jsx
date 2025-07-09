@@ -126,6 +126,7 @@ const SingleEntryAuth = () => {
       if (token && user) {
         const userWithToken = { ...user, token };
         localStorage.setItem("user", JSON.stringify(userWithToken));
+          localStorage.setItem("token", token);
         localStorage.removeItem("userRole");
 
         showAlert("success", "OTP Verified. Logged in!");
@@ -195,6 +196,7 @@ const SingleEntryAuth = () => {
       if (jwtToken && user) {
         const userWithToken = { ...user, token: jwtToken };
         localStorage.setItem("user", JSON.stringify(userWithToken));
+          localStorage.setItem("token", jwtToken);
         localStorage.removeItem("userRole");
 
         showAlert("success", "Google login successful");

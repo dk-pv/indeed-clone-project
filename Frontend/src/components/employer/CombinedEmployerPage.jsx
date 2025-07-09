@@ -133,81 +133,169 @@ export default function EmployerPage() {
     }
   };
 
-  const handleFinalSubmit = async () => {
-    const jobPostData = {
-      company: {
-        name: formData.companyName,
-        contactPerson: formData.fullName,
-        phone: formData.phone,
-        referralSource: formData.referralSource,
-      },
-      job: {
-        title: formData.jobTitle,
-        description: formData.jobDescription,
-        location: {
-          type: formData.locationType,
-          city: formData.city,
-          area: formData.area,
-          pincode: formData.pincode,
-          address: formData.address,
-        },
-      },
-      details: {
-        jobTypes: formData.jobTypes,
-        schedules: formData.schedules,
-        hiringCount: formData.numberOfPeople,
-        timeline: formData.recruitmentTimeline,
-        requiredSkills: formData.requiredSkills || [],
-        graduateRequired: formData.graduateRequired || false,
-      },
-      payAndBenefits: {
-        minSalary: formData.payRange.min,
-        maxSalary: formData.payRange.max,
-        supplementalPay: formData.supplementalPay,
-        benefits: formData.benefits,
-      },
-      preferences: {
-        email: formData.email,
-        additionalEmails: formData.additionalEmails.filter((e) => e),
-        individualEmails: formData.individualEmails,
-        resumeRequired: formData.resumeRequired,
-        contactCandidates: formData.contactCandidates,
-      },
-    };
+  //  const handleFinalSubmit = async () => {
+  //   const jobPostData = {
+  //     company: {
+  //       name: formData.companyName,
+  //       contactPerson: formData.fullName,
+  //       phone: formData.phone,
+  //       referralSource: formData.referralSource,
+  //     },
+  //     job: {
+  //       title: formData.jobTitle,
+  //       description: formData.jobDescription,
+  //       location: {
+  //         type: formData.locationType,
+  //         city: formData.city,
+  //         area: formData.area,
+  //         pincode: formData.pincode,
+  //         address: formData.address,
+  //       },
+  //     },
+  //     details: {
+  //       jobTypes: formData.jobTypes,
+  //       schedules: formData.schedules,
+  //       hiringCount: formData.numberOfPeople,
+  //       timeline: formData.recruitmentTimeline,
+  //       requiredSkills: formData.requiredSkills || [],
+  //       graduateRequired: formData.graduateRequired || false,
+  //     },
+  //     payAndBenefits: {
+  //       minSalary: formData.payRange.min,
+  //       maxSalary: formData.payRange.max,
+  //       supplementalPay: formData.supplementalPay,
+  //       benefits: formData.benefits,
+  //     },
+  //     preferences: {
+  //       email: formData.email,
+  //       additionalEmails: formData.additionalEmails.filter((e) => e),
+  //       individualEmails: formData.individualEmails,
+  //       resumeRequired: formData.resumeRequired,
+  //       contactCandidates: formData.contactCandidates,
+  //     },
+  //   };
 
-    try {
-      const token = localStorage.getItem("token");
+  //   try {
+  //     const token = localStorage.getItem("token");
 
-      const response = await fetch("http://localhost:9999/api/job/create", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(jobPostData),
-      });
+  //     const response = await fetch("http://localhost:9999/api/job/create", {
+  //       method: "POST",
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //         Authorization: `Bearer ${token}`,
+  //       },
+  //       body: JSON.stringify(jobPostData),
+  //     });
 
-      if (!response.ok) {
-        const contentType = response.headers.get("content-type");
-        if (contentType && contentType.includes("application/json")) {
-          const result = await response.json();
-          throw new Error(result.message || "Failed to submit job post");
-        } else {
-          const htmlError = await response.text();
-          console.error("Server returned HTML error:", htmlError);
-          throw new Error("Unexpected error (HTML response)");
-        }
-      }
+  //     if (!response.ok) {
+  //       const contentType = response.headers.get("content-type");
+  //       if (contentType && contentType.includes("application/json")) {
+  //         const result = await response.json();
+  //         throw new Error(result.message || "Failed to submit job post");
+  //       } else {
+  //         const htmlError = await response.text();
+  //         console.error("Server returned HTML error:", htmlError);
+  //         throw new Error("Unexpected error (HTML response)");
+  //       }
+  //     }
 
-      const result = await response.json();
-      localStorage.removeItem("jobPostFormData");
-      navigate("/success");
-    } catch (error) {
-      console.error("Error details:", error);
-      console.log("Failed request data:", jobPostData);
-      alert(`Error: ${error.message}`);
-    }
+  //     const result = await response.json();
+  //     localStorage.removeItem("jobPostFormData");
+  //     navigate("/success");
+  //   } catch (error) {
+  //     console.error("Error details:", error);
+  //     console.log("Failed request data:", jobPostData);
+  //     alert(`Error: ${error.message}`);
+  //   }
+  // };
+
+const handleFinalSubmit = async () => {
+  const jobPostData = {
+    company: {
+      name: formData.companyName,
+      contactPerson: formData.fullName,
+      phone: formData.phone,
+      referralSource: formData.referralSource,
+    },
+    job: {
+      title: formData.jobTitle,
+      description: formData.jobDescription,
+      location: {
+        type: formData.locationType,
+        city: formData.city,
+        area: formData.area,
+        pincode: formData.pincode,
+        address: formData.address,
+      },
+    },
+    details: {
+      jobTypes: formData.jobTypes,
+      schedules: formData.schedules,
+      hiringCount: formData.numberOfPeople,
+      timeline: formData.recruitmentTimeline,
+      requiredSkills: formData.requiredSkills || [],
+      graduateRequired: formData.graduateRequired || false,
+    },
+    payAndBenefits: {
+      minSalary: formData.payRange.min,
+      maxSalary: formData.payRange.max,
+      supplementalPay: formData.supplementalPay,
+      benefits: formData.benefits,
+    },
+    preferences: {
+      email: formData.email,
+      additionalEmails: formData.additionalEmails.filter((e) => e),
+      individualEmails: formData.individualEmails,
+      resumeRequired: formData.resumeRequired,
+      contactCandidates: formData.contactCandidates,
+    },
   };
+
+  try {
+    // ✅ Fallback logic: first try token, else try user.token
+    let token = localStorage.getItem("token");
+
+    if (!token) {
+      const user = JSON.parse(localStorage.getItem("user"));
+      token = user?.token;
+    }
+
+    if (!token || token.split(".").length !== 3) {
+      throw new Error("Malformed or missing token in localStorage");
+    }
+
+    const response = await fetch("http://localhost:9999/api/job/create", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(jobPostData),
+    });
+
+    if (!response.ok) {
+      const contentType = response.headers.get("content-type");
+      if (contentType && contentType.includes("application/json")) {
+        const result = await response.json();
+        throw new Error(result.message || "Failed to submit job post");
+      } else {
+        const htmlError = await response.text();
+        console.error("Server returned HTML error:", htmlError);
+        throw new Error("Unexpected error (HTML response)");
+      }
+    }
+
+    const result = await response.json();
+    localStorage.removeItem("jobPostFormData");
+    navigate("/success");
+  } catch (error) {
+    console.error("Error details:", error);
+    console.log("Failed request data:", jobPostData);
+    alert(`Error: ${error.message}`);
+  }
+};
+
+
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
