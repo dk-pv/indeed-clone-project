@@ -17,6 +17,8 @@ import { AuthContext } from "../context/AuthContext";
 import axiosInstance from "../../utils/axiosInstance";
 import { useNavigate } from "react-router-dom";
 
+import ConfirmApplyModal from "../components/common/ConfirmApplyModal";
+
 // API endpoints
 const API_BASE = "http://localhost:9999/api";
 
@@ -41,14 +43,49 @@ const FirstPage = () => {
   const [userRole, setUserRole] = useState(null);
   const [profileList, setProfileList] = useState([]);
 
+  const [appliedJobIds, setAppliedJobIds] = useState([]);
+
+  const [showApplyModal, setShowApplyModal] = useState(false);
+  const [selectedJobIdToApply, setSelectedJobIdToApply] = useState(null);
+
   const navigate = useNavigate();
 
-  const handleApplyJob = async (jobId) => {
+  // const handleApplyJob = async (jobId) => {
+  //   try {
+  //     const token = localStorage.getItem("token");
+
+  //     const response = await axios.post(
+  //       `http://localhost:9999/api/job/apply/${jobId}`,
+  //       {},
+  //       {
+  //         headers: {
+  //           Authorization: `Bearer ${token}`,
+  //         },
+  //       }
+  //     );
+
+  //     if (response.data.success) {
+  //       alert("🎉 Application submitted!");
+  //     }
+  //   } catch (error) {
+  //     const message = error.response?.data?.message || "Something went wrong";
+  //     alert("⚠️ " + message);
+
+  //     const redirectTo = error.response?.data?.redirectTo;
+  //     if (redirectTo) {
+  //       navigate(redirectTo);
+  //     }
+  //   }
+  // };
+
+  const confirmApplyHandler = async () => {
+    setShowApplyModal(false);
+
     try {
       const token = localStorage.getItem("token");
 
       const response = await axios.post(
-        `http://localhost:9999/api/job/apply/${jobId}`,
+        `http://localhost:9999/api/job/apply/${selectedJobIdToApply}`,
         {},
         {
           headers: {
@@ -59,6 +96,7 @@ const FirstPage = () => {
 
       if (response.data.success) {
         alert("🎉 Application submitted!");
+        setAppliedJobIds((prev) => [...prev, selectedJobIdToApply]);
       }
     } catch (error) {
       const message = error.response?.data?.message || "Something went wrong";
@@ -68,6 +106,28 @@ const FirstPage = () => {
       if (redirectTo) {
         navigate(redirectTo);
       }
+    }
+  };
+
+  const handleApplyJob = (jobId) => {
+    setSelectedJobIdToApply(jobId);
+    setShowApplyModal(true); // Show confirmation modal
+  };
+
+  const fetchAppliedJobs = async () => {
+    const token = localStorage.getItem("token");
+    if (!token) return;
+
+    try {
+      const res = await axios.get("http://localhost:9999/api/job/applied", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (res.data.success) {
+        setAppliedJobIds(res.data.jobIds || []);
+      }
+    } catch (err) {
+      console.error("❌ Failed to fetch applied jobs", err);
     }
   };
 
@@ -150,6 +210,7 @@ const FirstPage = () => {
   useEffect(() => {
     checkAuthStatus(); // 👈 this must set userRole and isLoggedIn
     fetchAllJobs();
+    if (isLoggedIn) fetchAppliedJobs();
   }, []);
 
   const filteredProfiles = profileList.filter((profile) => {
@@ -283,6 +344,12 @@ const FirstPage = () => {
 
   return (
     <div className="flex flex-col min-h-screen bg-gradient-to-br from-blue-50 to-purple-50">
+      <ConfirmApplyModal
+        isOpen={showApplyModal}
+        onConfirm={confirmApplyHandler}
+        onCancel={() => setShowApplyModal(false)}
+      />
+
       {/* Main Content */}
       <div className="w-full max-w-6xl mx-auto px-4 py-8 flex-grow">
         {/* Search Bar */}
@@ -628,15 +695,21 @@ const FirstPage = () => {
                     {/* Action Buttons */}
                     <div className="flex gap-3">
                       <button
-                        disabled={!selectedJobDetails?._id}
+                        disabled={
+                          !selectedJobDetails?._id ||
+                          appliedJobIds.includes(selectedJobDetails._id)
+                        }
                         onClick={() => handleApplyJob(selectedJobDetails._id)}
                         className={`${
-                          !selectedJobDetails?._id
+                          !selectedJobDetails?._id ||
+                          appliedJobIds.includes(selectedJobDetails._id)
                             ? "bg-gray-400 cursor-not-allowed"
                             : "bg-blue-600 hover:bg-blue-700"
                         } text-white font-semibold px-6 py-2 rounded-lg transition-colors duration-200`}
                       >
-                        Apply now
+                        {appliedJobIds.includes(selectedJobDetails._id)
+                          ? "✅ Applied"
+                          : "Apply now"}
                       </button>
 
                       <button className="border border-gray-300 hover:border-gray-400 text-gray-700 font-semibold px-4 py-2 rounded-lg transition-colors duration-200">

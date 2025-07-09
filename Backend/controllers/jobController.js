@@ -216,3 +216,20 @@ export const applyJob = async (req, res) => {
   }
 };
 
+
+export const getAppliedJobs = async (req, res) => {
+  try {
+    const applications = await Application.find({ user: req.user._id }).populate("job");
+
+    const jobIds = applications.map((app) => app.job._id.toString());
+
+    res.status(200).json({
+      success: true,
+      data: applications,
+      jobIds,
+    });
+  } catch (err) {
+    console.error("Error fetching applied jobs:", err);
+    res.status(500).json({ success: false, message: "Failed to fetch applied jobs" });
+  }
+};

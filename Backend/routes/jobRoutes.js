@@ -6,7 +6,8 @@ import {
   getAllJobs,
   getAJob,
   getEmployerJobs,
-  applyJob
+  applyJob,
+  getAppliedJobs
 } from "../controllers/jobController.js";
 import { verifyToken, verifyEmployer } from "../middleware/authMiddleware.js";
 
@@ -19,6 +20,8 @@ router.put("/update/:id", verifyToken, verifyEmployer, updateJob);
 router.delete("/delete/:id", verifyToken, verifyEmployer, deleteJob);
 
 router.post("/apply/:jobId", verifyToken, applyJob);
+router.get("/applied", verifyToken, getAppliedJobs); 
+
 
 
 router.get("/all", getAllJobs);
