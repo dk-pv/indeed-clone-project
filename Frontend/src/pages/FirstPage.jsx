@@ -196,7 +196,6 @@ const FirstPage = () => {
     return (!jobQuery || titleMatch) && (!locationQuery || locationMatch);
   });
 
-
   useEffect(() => {
     if (jobQuery.trim() === "" && locationQuery.trim() === "") {
       fetchAllJobs();
@@ -220,8 +219,6 @@ const FirstPage = () => {
     }
   };
 
-
-
   const fetchAllJobs = async () => {
     try {
       const response = await axios.get(`${API_BASE}/job/all`);
@@ -236,8 +233,6 @@ const FirstPage = () => {
       console.error("Failed to fetch jobs:", error);
     }
   };
-
-
 
   const handleJobClick = async (job) => {
     if (!job?._id) return;
@@ -409,13 +404,11 @@ const FirstPage = () => {
         {!isLoggedIn && (
           <>
             <div className="w-full mb-8">
-              <div className="w-full h-48 bg-gradient-to-r from-blue-100 to-purple-100 rounded-lg flex items-center justify-center">
-                <img
-                  src={mainImg}
-                  alt="Indeed main visual"
-                  className="max-h-full max-w-full object-contain"
-                />
-              </div>
+              <img
+                src={mainImg}
+                alt="Main Visual"
+                className="max-w-full h-auto mx-auto"
+              />
             </div>
 
             <div className="text-center mb-8">
@@ -525,14 +518,18 @@ const FirstPage = () => {
                       {selectedJob.personalInfo?.firstName}{" "}
                       {selectedJob.personalInfo?.lastName}
                     </h1>
+                    <br />
                     <p className="text-gray-600 mb-2">
-                      {selectedJob.personalInfo?.email} •{" "}
+                      {selectedJob.personalInfo?.email}{" "}
+                    </p>
+
+                    <p className="text-gray-600 mb-2">
                       {selectedJob.personalInfo?.location}
                     </p>
                     <p className="text-gray-600 text-sm mb-4">
                       📞 {selectedJob.personalInfo?.phone}
                     </p>
-
+                    <br />
                     {selectedJob.skills?.length > 0 && (
                       <div className="mb-6">
                         <h3 className="text-lg font-semibold text-gray-800 mb-3">
@@ -550,7 +547,7 @@ const FirstPage = () => {
                         </div>
                       </div>
                     )}
-
+                    <br />
                     {selectedJob.education?.length > 0 && (
                       <div className="mb-6">
                         <h3 className="text-lg font-semibold text-gray-800 mb-3">
@@ -563,7 +560,7 @@ const FirstPage = () => {
                         ))}
                       </div>
                     )}
-
+                    <br />
                     {selectedJob.resume?.filename && (
                       <div className="mt-4">
                         📄 Resume:{" "}
@@ -666,7 +663,7 @@ const FirstPage = () => {
 
                     {/* Action Buttons */}
                     <div className="flex gap-3">
-                      <button
+                      {/* <button
                         disabled={
                           !selectedJobDetails?._id ||
                           appliedJobIds.includes(selectedJobDetails._id)
@@ -678,6 +675,24 @@ const FirstPage = () => {
                             ? "bg-gray-400 cursor-not-allowed"
                             : "bg-blue-600 hover:bg-blue-700"
                         } text-white font-semibold px-6 py-2 rounded-lg transition-colors duration-200`}
+                      >
+                        {appliedJobIds.includes(selectedJobDetails._id)
+                          ? "✅ Applied"
+                          : "Apply now"}
+                      </button> */}
+
+                      <button
+                        disabled={
+                          !selectedJobDetails?._id ||
+                          appliedJobIds.includes(selectedJobDetails._id)
+                        }
+                        onClick={() => handleApplyJob(selectedJobDetails._id)}
+                        className={`${
+                          !selectedJobDetails?._id ||
+                          appliedJobIds.includes(selectedJobDetails._id)
+                            ? "bg-gray-300 text-gray-500 cursor-not-allowed border border-gray-300"
+                            : "bg-blue-700 hover:bg-blue-800 text-white border border-blue-700 hover:border-blue-800 shadow-sm hover:shadow-md"
+                        } font-medium px-8 py-3 rounded-md transition-all duration-200 text-sm uppercase tracking-wide min-w-[140px]`}
                       >
                         {appliedJobIds.includes(selectedJobDetails._id)
                           ? "✅ Applied"
