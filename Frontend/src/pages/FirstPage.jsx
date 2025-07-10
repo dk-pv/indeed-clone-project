@@ -343,6 +343,7 @@ const toggleSaveJob = async (jobId) => {
     }
   };
 
+
   // Handle key press
   const handleKeyPress = (e) => {
     if (e.key === "Enter") {
