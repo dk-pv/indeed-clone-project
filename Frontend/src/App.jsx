@@ -14,7 +14,7 @@ import ProtectedPublic from "./components/ProtectedPublic";
 import EmployerPost from "./pages/EmployerPost";
 import EmployerPostEdit from "./pages/EmployerPostEdit";
 import JSProfile from "./pages/JSProfile";
-import JobDetailsPage from "./components/JobDetailsPage";
+
 
 
 const router = createBrowserRouter([
@@ -97,10 +97,6 @@ const router = createBrowserRouter([
       </ProtectedRoute>
     ),
   },
-  {
-    path:"/job/:jobId",
-    element : <JobDetailsPage/>
-  }
 ]);
 
 const App = () => {
