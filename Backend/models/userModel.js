@@ -7,6 +7,8 @@ const userSchema = new mongoose.Schema(
     isVerified: { type: Boolean, default: false },
     loginType: { type: String, enum: ["google", "email"], required: true },
     role: { type: String, enum: ["jobSeeker", "employer"], default: null },
+
+    savedJobs: [{ type: mongoose.Schema.Types.ObjectId, ref: "Job" }],
   },
   { timestamps: true }
 );

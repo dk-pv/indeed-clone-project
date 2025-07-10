@@ -7,7 +7,6 @@ import {
   ChevronDown,
   Bookmark,
   Share2,
-  Eye,
   User,
 } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -47,6 +46,8 @@ const FirstPage = () => {
 
   const [showApplyModal, setShowApplyModal] = useState(false);
   const [selectedJobIdToApply, setSelectedJobIdToApply] = useState(null);
+
+  const [savedJobIds, setSavedJobIds] = useState([]);
 
   const navigate = useNavigate();
 
@@ -179,11 +180,68 @@ const FirstPage = () => {
     }
   };
 
+
+
+const fetchSavedJobs = async () => {
+  const token = localStorage.getItem("token");
+  if (!token) return;
+
+  try {
+    const res = await axios.get("http://localhost:9999/api/job/saved", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (res.data.success && Array.isArray(res.data.savedJobs)) {
+      const ids = res.data.savedJobs.map((job) => job._id);
+      setSavedJobIds(ids);
+    }
+  } catch (err) {
+    console.error("⚠️ Error fetching saved jobs", err);
+  }
+};
+
+const toggleSaveJob = async (jobId) => {
+  const token = localStorage.getItem("token");
+  if (!token) return;
+
+  const isSaved = savedJobIds.includes(jobId);
+
+  try {
+    if (isSaved) {
+      await axios.delete(`http://localhost:9999/api/job/saved/${jobId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setSavedJobIds((prev) => prev.filter((id) => id !== jobId));
+    } else {
+      await axios.post(
+        `http://localhost:9999/api/job/save/${jobId}`,
+        {},
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      setSavedJobIds((prev) => [...prev, jobId]);
+    }
+  } catch (err) {
+    console.error("⚠️ Error saving/removing job", err);
+  }
+};
+
   useEffect(() => {
     checkAuthStatus(); // 👈 this must set userRole and isLoggedIn
     fetchAllJobs();
     if (isLoggedIn) fetchAppliedJobs();
   }, []);
+
+  useEffect(() => {
+  if (isLoggedIn && userRole !== "employer") {
+    fetchSavedJobs();
+  }
+}, [isLoggedIn, userRole]);
+
+
 
   const filteredProfiles = profileList.filter((profile) => {
     const titleMatch = (profile?.skills || []).some((s) =>
@@ -608,7 +666,18 @@ const FirstPage = () => {
                       <h3 className="text-lg font-semibold text-gray-800 hover:text-blue-600">
                         {job.job?.title}
                       </h3>
-                      <Bookmark className="w-5 h-5 text-gray-400 hover:text-gray-600" />
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation(); // prevent job select on click
+                          toggleSaveJob(job._id);
+                        }}
+                      >
+                        {savedJobIds.includes(job._id) ? (
+                          <Bookmark className="w-5 h-5 text-blue-600 fill-blue-600" />
+                        ) : (
+                          <Bookmark className="w-5 h-5 text-gray-400 hover:text-gray-600" />
+                        )}
+                      </button>
                     </div>
 
                     <p className="text-gray-600 text-sm mb-2">
@@ -663,24 +732,6 @@ const FirstPage = () => {
 
                     {/* Action Buttons */}
                     <div className="flex gap-3">
-                      {/* <button
-                        disabled={
-                          !selectedJobDetails?._id ||
-                          appliedJobIds.includes(selectedJobDetails._id)
-                        }
-                        onClick={() => handleApplyJob(selectedJobDetails._id)}
-                        className={`${
-                          !selectedJobDetails?._id ||
-                          appliedJobIds.includes(selectedJobDetails._id)
-                            ? "bg-gray-400 cursor-not-allowed"
-                            : "bg-blue-600 hover:bg-blue-700"
-                        } text-white font-semibold px-6 py-2 rounded-lg transition-colors duration-200`}
-                      >
-                        {appliedJobIds.includes(selectedJobDetails._id)
-                          ? "✅ Applied"
-                          : "Apply now"}
-                      </button> */}
-
                       <button
                         disabled={
                           !selectedJobDetails?._id ||
@@ -699,9 +750,26 @@ const FirstPage = () => {
                           : "Apply now"}
                       </button>
 
-                      <button className="border border-gray-300 hover:border-gray-400 text-gray-700 font-semibold px-4 py-2 rounded-lg transition-colors duration-200">
-                        <Bookmark className="w-4 h-4" />
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation(); // prevent triggering handleJobClick
+                          toggleSaveJob(selectedJobDetails._id);
+                        }}
+                        className={`border font-semibold px-4 py-2 rounded-lg transition-colors duration-200 ${
+                          savedJobIds.includes(selectedJobDetails._id)
+                            ? "border-blue-500 text-blue-600"
+                            : "border-gray-300 text-gray-700 hover:border-gray-400"
+                        }`}
+                      >
+                        <Bookmark
+                          className={`w-4 h-4 ${
+                            savedJobIds.includes(selectedJobDetails._id)
+                              ? "fill-blue-600"
+                              : ""
+                          }`}
+                        />
                       </button>
+
                       <button className="border border-gray-300 hover:border-gray-400 text-gray-700 font-semibold px-4 py-2 rounded-lg transition-colors duration-200">
                         <Share2 className="w-4 h-4" />
                       </button>

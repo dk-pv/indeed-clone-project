@@ -3,6 +3,8 @@ import Application from "../models/jobApplicationModel.js";
 import Profile from "../models/profileModel.js";
 import { sendJobApplicationEmail } from "../utils/sendJobApplicationEmail.js";
 import asyncHandler from "express-async-handler";
+import User from "../models/userModel.js";
+
 
 export const createJob = asyncHandler(async (req, res) => {
   const { company, job, details, payAndBenefits, preferences, status } =
@@ -49,7 +51,6 @@ export const createJob = asyncHandler(async (req, res) => {
 });
 
 
-
 export const getAllJobs = asyncHandler(async (req, res) => {
   const jobs = await Job.find({ status: "published", isDeleted: false })
     .populate("employer", "name email companyName")
@@ -61,8 +62,6 @@ export const getAllJobs = asyncHandler(async (req, res) => {
     data: jobs,
   });
 });
-
-
 
 
 export const getEmployerJobs = asyncHandler(async (req, res) => {
@@ -77,8 +76,6 @@ export const getEmployerJobs = asyncHandler(async (req, res) => {
     data: jobs,
   });
 });
-
-
 
 
 export const updateJob = asyncHandler(async (req, res) => {
@@ -111,8 +108,6 @@ export const updateJob = asyncHandler(async (req, res) => {
 });
 
 
-
-
 export const getAJob = asyncHandler(async (req, res) => {
   const job = await Job.findById(req.params.id).populate(
     "employer",
@@ -129,8 +124,6 @@ export const getAJob = asyncHandler(async (req, res) => {
     data: job,
   });
 });
-
-
 
 
 export const deleteJob = asyncHandler(async (req, res) => {
@@ -155,6 +148,8 @@ export const deleteJob = asyncHandler(async (req, res) => {
   });
 });
 
+
+                                                  // apply job
 
 
 
@@ -273,5 +268,86 @@ export const getAppliedJobs = async (req, res) => {
     res
       .status(500)
       .json({ success: false, message: "Failed to fetch applied jobs" });
+  }
+};
+
+
+
+
+
+
+
+                                              // save job
+
+
+
+// ✅ Save a job
+export const saveJob = async (req, res) => {
+  try {
+    const { jobId } = req.params;
+    const user = req.user;
+
+    if (!jobId) {
+      return res.status(400).json({ success: false, message: "Job ID is required" });
+    }
+
+    // Already saved check
+    if (user.savedJobs.includes(jobId)) {
+      return res.status(400).json({ success: false, message: "Job already saved" });
+    }
+
+    user.savedJobs.push(jobId);
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Job saved successfully",
+      savedJobs: user.savedJobs,
+    });
+  } catch (err) {
+    console.error("Save Job Error:", err.message);
+    res.status(500).json({ success: false, message: "Internal Server Error" });
+  }
+};
+
+// ✅ Remove a saved job
+export const removeSavedJob = async (req, res) => {
+  try {
+    const { jobId } = req.params;
+    const user = req.user;
+
+    if (!jobId) {
+      return res.status(400).json({ success: false, message: "Job ID is required" });
+    }
+
+    user.savedJobs = user.savedJobs.filter(
+      (savedId) => savedId.toString() !== jobId.toString()
+    );
+
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Job removed from saved list",
+      savedJobs: user.savedJobs,
+    });
+  } catch (err) {
+    console.error("Remove Saved Job Error:", err.message);
+    res.status(500).json({ success: false, message: "Internal Server Error" });
+  }
+};
+
+// ✅ Get all saved jobs
+export const getSavedJobs = async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id).populate("savedJobs");
+
+    res.status(200).json({
+      success: true,
+      savedJobs: user.savedJobs,
+    });
+  } catch (err) {
+    console.error("Get Saved Jobs Error:", err.message);
+    res.status(500).json({ success: false, message: "Internal Server Error" });
   }
 };
