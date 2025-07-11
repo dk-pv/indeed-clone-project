@@ -728,63 +728,6 @@ const FirstPage = () => {
                     </p>
 
                     {/* Action Buttons */}
-                    {/* <div className="flex gap-3">
-                      <button
-                        disabled={
-                          !selectedJobDetails?._id ||
-                          appliedJobIds.includes(selectedJobDetails._id)
-                        }
-                        onClick={() => handleApplyJob(selectedJobDetails._id)}
-                        className={`${
-                          !selectedJobDetails?._id ||
-                          appliedJobIds.includes(selectedJobDetails._id)
-                            ? "bg-gray-300 text-gray-500 cursor-not-allowed border border-gray-300"
-                            : "bg-blue-700 hover:bg-blue-800 text-white border border-blue-700 hover:border-blue-800 shadow-sm hover:shadow-md"
-                        } font-medium px-8 py-3 rounded-md transition-all duration-200 text-sm uppercase tracking-wide min-w-[140px]`}
-                      >
-                        {appliedJobIds.includes(selectedJobDetails._id)
-                          ? "✅ Applied"
-                          : "Apply now"}
-                      </button>
-
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation(); // prevent triggering handleJobClick
-                          toggleSaveJob(selectedJobDetails._id);
-                        }}
-                        className={`border font-semibold px-4 py-2 rounded-lg transition-colors duration-200 ${
-                          savedJobIds.includes(selectedJobDetails._id)
-                            ? "border-blue-500 text-blue-600"
-                            : "border-gray-300 text-gray-700 hover:border-gray-400"
-                        }`}
-                      >
-                        <Bookmark
-                          className={`w-4 h-4 ${
-                            savedJobIds.includes(selectedJobDetails._id)
-                              ? "fill-blue-600"
-                              : ""
-                          }`}
-                        />
-                      </button>
-
-                      <button className="border border-gray-300 hover:border-gray-400 text-gray-700 font-semibold px-4 py-2 rounded-lg transition-colors duration-200">
-                        <Share2 className="w-4 h-4" />
-                      </button>
-
-                      <button
-                        onClick={() =>
-                          navigate(
-                            `/chat/${selectedJobDetails.company?.userId}`
-                          )
-                        }
-                        className="border border-gray-300 hover:border-gray-400 text-gray-700 font-semibold px-4 py-2 rounded-lg transition-colors duration-200 flex items-center gap-2"
-                      >
-                        <MessageSquare className="w-4 h-4" />
-                        Chat
-                      </button>
-                    </div> */}
-
-                    {/* Action Buttons */}
                     <div className="flex gap-3">
                       <button
                         disabled={

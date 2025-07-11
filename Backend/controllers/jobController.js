@@ -5,7 +5,6 @@ import { sendJobApplicationEmail } from "../utils/sendJobApplicationEmail.js";
 import asyncHandler from "express-async-handler";
 import User from "../models/userModel.js";
 
-
 export const createJob = asyncHandler(async (req, res) => {
   const { company, job, details, payAndBenefits, preferences, status } =
     req.body;
@@ -50,7 +49,6 @@ export const createJob = asyncHandler(async (req, res) => {
   });
 });
 
-
 export const getAllJobs = asyncHandler(async (req, res) => {
   const jobs = await Job.find({ status: "published", isDeleted: false })
     .populate("employer", "name email companyName")
@@ -62,7 +60,6 @@ export const getAllJobs = asyncHandler(async (req, res) => {
     data: jobs,
   });
 });
-
 
 export const getEmployerJobs = asyncHandler(async (req, res) => {
   const jobs = await Job.find({
@@ -77,7 +74,6 @@ export const getEmployerJobs = asyncHandler(async (req, res) => {
   });
 });
 
-
 export const updateJob = asyncHandler(async (req, res) => {
   let job = await Job.findById(req.params.id);
 
@@ -85,8 +81,7 @@ export const updateJob = asyncHandler(async (req, res) => {
     res.status(404);
     throw new Error("Job not found");
   }
-
-  // Check if the job belongs to the logged-in employer
+  
   if (job.employer.toString() !== req.user._id.toString()) {
     res.status(401);
     throw new Error("Not authorized to update this job");
@@ -107,24 +102,6 @@ export const updateJob = asyncHandler(async (req, res) => {
   });
 });
 
-
-// export const getAJob = asyncHandler(async (req, res) => {
-//   const job = await Job.findById(req.params.id).populate(
-//     "employer",
-//     "name email companyName"
-//   );
-
-//   if (!job) {
-//     res.status(404);
-//     throw new Error("Job not found");
-//   }
-
-//   res.status(200).json({
-//     success: true,
-//     data: job,
-//   });
-// });
-
 export const getAJob = asyncHandler(async (req, res) => {
   const job = await Job.findById(req.params.id).populate(
     "employer",
@@ -136,13 +113,11 @@ export const getAJob = asyncHandler(async (req, res) => {
     throw new Error("Job not found");
   }
 
-  // Convert to plain object so we can inject fields
   const jobData = job.toObject();
 
-  // Inject employer._id as company.userId
   jobData.company = {
     ...jobData.company,
-    userId: job.employer._id, // 👈 inject employer userId here
+    userId: job.employer._id,
   };
 
   res.status(200).json({
@@ -150,8 +125,6 @@ export const getAJob = asyncHandler(async (req, res) => {
     data: jobData,
   });
 });
-
-
 
 export const deleteJob = asyncHandler(async (req, res) => {
   const job = await Job.findById(req.params.id);
@@ -175,10 +148,7 @@ export const deleteJob = asyncHandler(async (req, res) => {
   });
 });
 
-
-                                                  // apply job
-
-
+// apply job
 
 export const applyJob = async (req, res) => {
   try {
@@ -298,15 +268,7 @@ export const getAppliedJobs = async (req, res) => {
   }
 };
 
-
-
-
-
-
-
-                                              // save job
-
-
+// save job
 
 // ✅ Save a job
 export const saveJob = async (req, res) => {
@@ -315,12 +277,16 @@ export const saveJob = async (req, res) => {
     const user = req.user;
 
     if (!jobId) {
-      return res.status(400).json({ success: false, message: "Job ID is required" });
+      return res
+        .status(400)
+        .json({ success: false, message: "Job ID is required" });
     }
 
     // Already saved check
     if (user.savedJobs.includes(jobId)) {
-      return res.status(400).json({ success: false, message: "Job already saved" });
+      return res
+        .status(400)
+        .json({ success: false, message: "Job already saved" });
     }
 
     user.savedJobs.push(jobId);
@@ -344,7 +310,9 @@ export const removeSavedJob = async (req, res) => {
     const user = req.user;
 
     if (!jobId) {
-      return res.status(400).json({ success: false, message: "Job ID is required" });
+      return res
+        .status(400)
+        .json({ success: false, message: "Job ID is required" });
     }
 
     user.savedJobs = user.savedJobs.filter(

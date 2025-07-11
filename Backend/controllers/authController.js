@@ -123,14 +123,14 @@ export const googleLogin = async (req, res) => {
   }
 };
 
-
-
 export const getUserById = async (req, res) => {
   try {
     const user = await User.findById(req.params.id).select("name email"); // 👈 ensure email is selected
 
     if (!user) {
-      return res.status(404).json({ success: false, message: "User not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "User not found" });
     }
 
     res.status(200).json({ success: true, data: user });
