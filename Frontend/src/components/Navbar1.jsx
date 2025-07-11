@@ -57,12 +57,21 @@ const Navbar = () => {
   };
 
   // Get current page from window.location.pathname
-  const currentPath = typeof window !== 'undefined' ? window.location.pathname : '/';
-  
+  const currentPath =
+    typeof window !== "undefined" ? window.location.pathname : "/";
+
   const allNavLinks = [
     { name: "Home", to: "/", active: currentPath === "/" },
-    { name: "Company reviews", to: "/companyReview", active: currentPath === "/companyReview" },
-    { name: "Salary guide", to: "/salaries", active: currentPath === "/salaries" },
+    {
+      name: "Company reviews",
+      to: "/companyReview",
+      active: currentPath === "/companyReview",
+    },
+    {
+      name: "Salary guide",
+      to: "/salaries",
+      active: currentPath === "/salaries",
+    },
   ];
 
   const navLinks =
@@ -92,7 +101,7 @@ const Navbar = () => {
                   className="h-8 w-auto"
                 />
               </div>
-              
+
               {/* Desktop Navigation */}
               <div className="hidden min-[1000px]:block ml-10">
                 <div className="flex items-baseline space-x-8">
@@ -101,7 +110,9 @@ const Navbar = () => {
                       key={index}
                       href={link.to}
                       onClick={(e) =>
-                        !isLoggedIn && link.name !== "Home" && handleProtectedClick(e, link.to)
+                        !isLoggedIn &&
+                        link.name !== "Home" &&
+                        handleProtectedClick(e, link.to)
                       }
                       className={`text-sm font-medium px-3 py-2 rounded-md transition-all duration-200 relative ${
                         link.active
@@ -120,7 +131,7 @@ const Navbar = () => {
             <div className="hidden min-[1000px]:flex items-center space-x-4">
               {isLoggedIn ? (
                 <div className="flex items-center space-x-4">
-                  {userRole !== "employer" ? (
+                  {/* {userRole !== "employer" ? (
                     <>
                       <button className="p-2 text-gray-600 hover:text-blue-600 hover:bg-gray-50 rounded-md transition-colors">
                         <Bookmark className="h-5 w-5" />
@@ -192,6 +203,47 @@ const Navbar = () => {
                         Sign out
                       </button>
                     </div>
+                  )} */}
+
+                  {userRole !== "employer" ? (
+                    <>
+                      <button className="p-2 text-gray-600 hover:text-blue-600 hover:bg-gray-50 rounded-md transition-colors">
+                        <Bookmark className="h-5 w-5" />
+                      </button>
+                      <button className="p-2 text-gray-600 hover:text-blue-600 hover:bg-gray-50 rounded-md transition-colors">
+                        <MessageSquare className="h-5 w-5" />
+                      </button>
+                      <button className="p-2 text-gray-600 hover:text-blue-600 hover:bg-gray-50 rounded-md transition-colors">
+                        <Bell className="h-5 w-5" />
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      {/* ✅ Icons for Employer */}
+                      <button className="p-2 text-gray-600 hover:text-blue-600 hover:bg-gray-50 rounded-md transition-colors">
+                        <MessageSquare className="h-5 w-5" />
+                      </button>
+                      <button className="p-2 text-gray-600 hover:text-blue-600 hover:bg-gray-50 rounded-md transition-colors">
+                        <Bell className="h-5 w-5" />
+                      </button>
+
+                      <div className="flex items-center space-x-3">
+                        <span className="text-sm text-gray-700 max-w-32 truncate">
+                          {userEmail}
+                        </span>
+                        <button
+                          onClick={() => {
+                            localStorage.removeItem("token");
+                            localStorage.removeItem("user");
+                            setIsLoggedIn(false);
+                            showAlert("success", "Signed out successfully");
+                          }}
+                          className="text-sm text-blue-600 font-medium hover:underline transition-colors"
+                        >
+                          Sign out
+                        </button>
+                      </div>
+                    </>
                   )}
 
                   <div className="h-6 w-px bg-gray-300"></div>
@@ -249,7 +301,9 @@ const Navbar = () => {
                   key={index}
                   href={link.to}
                   onClick={(e) => {
-                    !isLoggedIn && link.name !== "Home" && handleProtectedClick(e, link.to);
+                    !isLoggedIn &&
+                      link.name !== "Home" &&
+                      handleProtectedClick(e, link.to);
                     setIsMenuOpen(false);
                   }}
                   className={`block text-sm font-medium px-3 py-2 rounded-md transition-colors ${
@@ -269,9 +323,11 @@ const Navbar = () => {
                       <p className="text-sm font-medium text-gray-900 truncate">
                         {userEmail}
                       </p>
-                      <p className="text-xs text-gray-500 capitalize">{userRole}</p>
+                      <p className="text-xs text-gray-500 capitalize">
+                        {userRole}
+                      </p>
                     </div>
-                    
+
                     {userRole !== "employer" && (
                       <div className="space-y-2">
                         <div className="flex items-center justify-around py-2 border-b border-gray-200">
@@ -285,7 +341,7 @@ const Navbar = () => {
                             <Bell className="h-5 w-5" />
                           </button>
                         </div>
-                        
+
                         {userMenuItems.map((item, index) => (
                           <a
                             key={index}
@@ -299,7 +355,7 @@ const Navbar = () => {
                         ))}
                       </div>
                     )}
-                    
+
                     <button
                       onClick={() => {
                         localStorage.removeItem("token");
@@ -322,7 +378,7 @@ const Navbar = () => {
                     Sign in
                   </a>
                 )}
-                
+
                 <a
                   href="/EmployerHome"
                   onClick={(e) => {

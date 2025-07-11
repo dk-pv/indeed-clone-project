@@ -1,23 +1,23 @@
-import { createContext, useContext, useEffect, useRef } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import { io } from "socket.io-client";
 
 const SocketContext = createContext();
 
 export const SocketProvider = ({ children }) => {
-  const socket = useRef(null);
+  const [socket, setSocket] = useState(null);
 
   useEffect(() => {
-    socket.current = io("http://localhost:9999", {
+    const newSocket = io("http://localhost:9999", {
       withCredentials: true,
     });
 
-    return () => {
-      socket.current.disconnect();
-    };
+    setSocket(newSocket);
+
+    return () => newSocket.disconnect(); // clean up on unmount
   }, []);
 
   return (
-    <SocketContext.Provider value={socket.current}>
+    <SocketContext.Provider value={socket}>
       {children}
     </SocketContext.Provider>
   );
