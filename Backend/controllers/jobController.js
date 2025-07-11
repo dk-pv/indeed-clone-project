@@ -108,10 +108,27 @@ export const updateJob = asyncHandler(async (req, res) => {
 });
 
 
+// export const getAJob = asyncHandler(async (req, res) => {
+//   const job = await Job.findById(req.params.id).populate(
+//     "employer",
+//     "name email companyName"
+//   );
+
+//   if (!job) {
+//     res.status(404);
+//     throw new Error("Job not found");
+//   }
+
+//   res.status(200).json({
+//     success: true,
+//     data: job,
+//   });
+// });
+
 export const getAJob = asyncHandler(async (req, res) => {
   const job = await Job.findById(req.params.id).populate(
     "employer",
-    "name email companyName"
+    "_id name email companyName"
   );
 
   if (!job) {
@@ -119,11 +136,21 @@ export const getAJob = asyncHandler(async (req, res) => {
     throw new Error("Job not found");
   }
 
+  // Convert to plain object so we can inject fields
+  const jobData = job.toObject();
+
+  // Inject employer._id as company.userId
+  jobData.company = {
+    ...jobData.company,
+    userId: job.employer._id, // 👈 inject employer userId here
+  };
+
   res.status(200).json({
     success: true,
-    data: job,
+    data: jobData,
   });
 });
+
 
 
 export const deleteJob = asyncHandler(async (req, res) => {

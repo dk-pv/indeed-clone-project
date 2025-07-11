@@ -8,6 +8,7 @@ import {
   Bookmark,
   Share2,
   User,
+  MessageSquare,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import mainImg from "../assets/main.png";
@@ -180,54 +181,52 @@ const FirstPage = () => {
     }
   };
 
+  const fetchSavedJobs = async () => {
+    const token = localStorage.getItem("token");
+    if (!token) return;
 
-
-const fetchSavedJobs = async () => {
-  const token = localStorage.getItem("token");
-  if (!token) return;
-
-  try {
-    const res = await axios.get("http://localhost:9999/api/job/saved", {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-
-    if (res.data.success && Array.isArray(res.data.savedJobs)) {
-      const ids = res.data.savedJobs.map((job) => job._id);
-      setSavedJobIds(ids);
-    }
-  } catch (err) {
-    console.error("⚠️ Error fetching saved jobs", err);
-  }
-};
-
-const toggleSaveJob = async (jobId) => {
-  const token = localStorage.getItem("token");
-  if (!token) return;
-
-  const isSaved = savedJobIds.includes(jobId);
-
-  try {
-    if (isSaved) {
-      await axios.delete(`http://localhost:9999/api/job/saved/${jobId}`, {
-        headers: { Authorization: `Bearer ${token}` },
+    try {
+      const res = await axios.get("http://localhost:9999/api/job/saved", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
-      setSavedJobIds((prev) => prev.filter((id) => id !== jobId));
-    } else {
-      await axios.post(
-        `http://localhost:9999/api/job/save/${jobId}`,
-        {},
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
-      setSavedJobIds((prev) => [...prev, jobId]);
+
+      if (res.data.success && Array.isArray(res.data.savedJobs)) {
+        const ids = res.data.savedJobs.map((job) => job._id);
+        setSavedJobIds(ids);
+      }
+    } catch (err) {
+      console.error("⚠️ Error fetching saved jobs", err);
     }
-  } catch (err) {
-    console.error("⚠️ Error saving/removing job", err);
-  }
-};
+  };
+
+  const toggleSaveJob = async (jobId) => {
+    const token = localStorage.getItem("token");
+    if (!token) return;
+
+    const isSaved = savedJobIds.includes(jobId);
+
+    try {
+      if (isSaved) {
+        await axios.delete(`http://localhost:9999/api/job/saved/${jobId}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setSavedJobIds((prev) => prev.filter((id) => id !== jobId));
+      } else {
+        await axios.post(
+          `http://localhost:9999/api/job/save/${jobId}`,
+          {},
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+        setSavedJobIds((prev) => [...prev, jobId]);
+      }
+    } catch (err) {
+      console.error("⚠️ Error saving/removing job", err);
+    }
+  };
 
   useEffect(() => {
     checkAuthStatus(); // 👈 this must set userRole and isLoggedIn
@@ -236,12 +235,10 @@ const toggleSaveJob = async (jobId) => {
   }, []);
 
   useEffect(() => {
-  if (isLoggedIn && userRole !== "employer") {
-    fetchSavedJobs();
-  }
-}, [isLoggedIn, userRole]);
-
-
+    if (isLoggedIn && userRole !== "employer") {
+      fetchSavedJobs();
+    }
+  }, [isLoggedIn, userRole]);
 
   const filteredProfiles = profileList.filter((profile) => {
     const titleMatch = (profile?.skills || []).some((s) =>
@@ -342,7 +339,6 @@ const toggleSaveJob = async (jobId) => {
       console.error("Search failed:", error);
     }
   };
-
 
   // Handle key press
   const handleKeyPress = (e) => {
@@ -732,7 +728,7 @@ const toggleSaveJob = async (jobId) => {
                     </p>
 
                     {/* Action Buttons */}
-                    <div className="flex gap-3">
+                    {/* <div className="flex gap-3">
                       <button
                         disabled={
                           !selectedJobDetails?._id ||
@@ -773,6 +769,91 @@ const toggleSaveJob = async (jobId) => {
 
                       <button className="border border-gray-300 hover:border-gray-400 text-gray-700 font-semibold px-4 py-2 rounded-lg transition-colors duration-200">
                         <Share2 className="w-4 h-4" />
+                      </button>
+
+                      <button
+                        onClick={() =>
+                          navigate(
+                            `/chat/${selectedJobDetails.company?.userId}`
+                          )
+                        }
+                        className="border border-gray-300 hover:border-gray-400 text-gray-700 font-semibold px-4 py-2 rounded-lg transition-colors duration-200 flex items-center gap-2"
+                      >
+                        <MessageSquare className="w-4 h-4" />
+                        Chat
+                      </button>
+                    </div> */}
+
+                    {/* Action Buttons */}
+                    <div className="flex gap-3">
+                      <button
+                        disabled={
+                          !selectedJobDetails?._id ||
+                          appliedJobIds.includes(selectedJobDetails._id)
+                        }
+                        onClick={() => handleApplyJob(selectedJobDetails._id)}
+                        className={`${
+                          !selectedJobDetails?._id ||
+                          appliedJobIds.includes(selectedJobDetails._id)
+                            ? "bg-gray-300 text-gray-500 cursor-not-allowed border border-gray-300"
+                            : "bg-blue-700 hover:bg-blue-800 text-white border border-blue-700 hover:border-blue-800 shadow-sm hover:shadow-md"
+                        } font-medium px-8 py-3 rounded-md transition-all duration-200 text-sm uppercase tracking-wide min-w-[140px]`}
+                      >
+                        {appliedJobIds.includes(selectedJobDetails._id)
+                          ? "✅ Applied"
+                          : "Apply now"}
+                      </button>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          toggleSaveJob(selectedJobDetails._id);
+                        }}
+                        className={`border font-semibold px-4 py-2 rounded-lg transition-colors duration-200 ${
+                          savedJobIds.includes(selectedJobDetails._id)
+                            ? "border-blue-500 text-blue-600"
+                            : "border-gray-300 text-gray-700 hover:border-gray-400"
+                        }`}
+                      >
+                        <Bookmark
+                          className={`w-4 h-4 ${
+                            savedJobIds.includes(selectedJobDetails._id)
+                              ? "fill-blue-600"
+                              : ""
+                          }`}
+                        />
+                      </button>
+                      <button className="border border-gray-300 hover:border-gray-400 text-gray-700 font-semibold px-4 py-2 rounded-lg transition-colors duration-200">
+                        <Share2 className="w-4 h-4" />
+                      </button>
+
+                      <button
+                        className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200 flex items-center gap-2 shadow-md hover:shadow-lg"
+                        onClick={() => {
+                          const employerId = selectedJobDetails.company?.userId;
+                          if (employerId) {
+                            navigate(`/chat/${employerId}`);
+                          } else {
+                            console.error(
+                              "❌ Employer ID not found in job details"
+                            );
+                            alert("Chat unavailable: Employer info missing");
+                          }
+                        }}
+                      >
+                        <svg
+                          className="w-4 h-4"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-3.582 8-8 8a8.955 8.955 0 01-4.126-.98L3 21l1.98-5.874A8.955 8.955 0 013 12c0-4.418 3.582-8 8-8s8 3.582 8 8z"
+                          />
+                        </svg>
+                        Contact Employer
                       </button>
                     </div>
                   </div>

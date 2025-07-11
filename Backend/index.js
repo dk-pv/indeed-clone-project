@@ -1,51 +1,62 @@
+
+
+
 import dotenv from "dotenv";
 dotenv.config();
 
 import express from "express";
 import cors from "cors";
+import path from "path";
+import http from "http";
 import connectDB from "./config/db.js";
-import path from 'path'
+import { setupSocket } from "./config/socket.js";
 
 // Routes
 import authRoutes from "./routes/authRoutes.js";
 import jobRoutes from "./routes/jobRoutes.js";
 import searchRoutes from "./routes/searchRoutes.js";
 import profileRoutes from "./routes/profileRoutes.js";
+import chatRoutes from "./routes/chatRoutes.js";
 
 // Middleware
 import errorHandler from "./middleware/errorHandler.js";
 
-// Initialize app
+// Init app
 const app = express();
 
-// Connect to DB
+// DB connect
 connectDB();
 
-// Middlewares
+// Middleware
 app.use(
   cors({
     origin: process.env.FRONTEND_URL,
     credentials: true,
   })
 );
-
 app.use(express.json());
 
-// resume files
+// Resume static folder
 app.use("/uploads", express.static(path.join(path.resolve(), "uploads")));
 
-// API Routes
+// Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/job", jobRoutes);
 app.use("/api/search", searchRoutes);
 app.use("/api/profile", profileRoutes);
-
+app.use("/api/chat", chatRoutes);
 
 // Error handler
 app.use(errorHandler);
 
+// Create server manually
+const server = http.createServer(app);
+
+// Setup socket.io
+setupSocket(server);
+
 // Start server
 const PORT = process.env.PORT || 9999;
-app.listen(PORT, () => {
+server.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
 });

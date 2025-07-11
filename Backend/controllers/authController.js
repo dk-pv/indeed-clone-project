@@ -123,13 +123,18 @@ export const googleLogin = async (req, res) => {
   }
 };
 
-export const getProfile = async (req, res) => {
+
+
+export const getUserById = async (req, res) => {
   try {
-    const user = await User.findById(req.user.id).select("-otp");
-    res.status(200).json(user);
+    const user = await User.findById(req.params.id).select("name email"); // 👈 ensure email is selected
+
+    if (!user) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
+
+    res.status(200).json({ success: true, data: user });
   } catch (err) {
-    res
-      .status(500)
-      .json({ message: "Failed to fetch user", error: err.message });
+    res.status(500).json({ success: false, message: err.message });
   }
 };

@@ -14,6 +14,7 @@ import ProtectedPublic from "./components/ProtectedPublic";
 import EmployerPost from "./pages/EmployerPost";
 import EmployerPostEdit from "./pages/EmployerPostEdit";
 import JSProfile from "./pages/JSProfile";
+import ChatPage from "./pages/ChatPage";
 
 
 
@@ -97,6 +98,10 @@ const router = createBrowserRouter([
       </ProtectedRoute>
     ),
   },
+  {
+    path:'/chat/:employerId',
+    element: <ChatPage/>
+  }
 ]);
 
 const App = () => {
