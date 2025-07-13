@@ -8,7 +8,7 @@ import http from "http";
 import connectDB from "./config/db.js";
 import { setupSocket } from "./config/socket.js";
 
-// Routes
+// Routes  
 import authRoutes from "./routes/authRoutes.js";
 import jobRoutes from "./routes/jobRoutes.js";
 import searchRoutes from "./routes/searchRoutes.js";

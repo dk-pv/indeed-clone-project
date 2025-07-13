@@ -19,6 +19,7 @@ export const setupSocket = (server) => {
 
     socket.on("sendMessage", (data) => {
       io.to(data.room).emit("receiveMessage", data);
+      io.emit("newMessage"); // Notify inbox refresh
     });
 
     socket.on("disconnect", () => {

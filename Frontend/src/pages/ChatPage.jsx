@@ -56,8 +56,6 @@
 //   useEffect(() => {
 //     if (!socket || !senderId || !employerId) return;
 
-//     console.log("📡 Socket ready:", socket);
-
 //     socket.emit("join", { room });
 
 //     socket.on("receiveMessage", (data) => {
@@ -73,16 +71,7 @@
 //   useEffect(() => {
 //     const idForJob = jobId || "null";
 
-//     if (!senderId || !employerId) {
-//       console.error("❌ Missing user ID or employer ID");
-//       return;
-//     }
-
-//     console.log("📨 Fetching messages with:", {
-//       jobId: idForJob,
-//       senderId,
-//       receiverId: employerId,
-//     });
+//     if (!senderId || !employerId) return;
 
 //     axios
 //       .get(
@@ -102,15 +91,18 @@
 //       );
 //   }, [senderId, employerId]);
 
-//   // Send new message
+//   // Send new message (no local push to avoid duplicates)
 //   const handleSend = async () => {
 //     if (!message.trim()) return;
+
+//     const now = new Date();
 
 //     const data = {
 //       senderId,
 //       receiverId: employerId,
 //       content: message,
 //       jobId,
+//       createdAt: now.toISOString(),
 //     };
 
 //     try {
@@ -124,7 +116,7 @@
 //         socket.emit("sendMessage", { ...data, room });
 //       }
 
-//       setMessage("");
+//       setMessage(""); // Clear input
 //     } catch (err) {
 //       console.error(
 //         "❌ Error sending message:",
@@ -151,7 +143,12 @@
 //           >
 //             <p>{msg.content}</p>
 //             <p className="text-xs text-gray-500 mt-1">
-//               {new Date(msg.createdAt).toLocaleTimeString()}
+//               {msg.createdAt
+//                 ? new Date(msg.createdAt).toLocaleTimeString([], {
+//                     hour: "2-digit",
+//                     minute: "2-digit",
+//                   })
+//                 : ""}
 //             </p>
 //           </div>
 //         ))}
@@ -193,7 +190,6 @@ const ChatPage = () => {
   const token = localStorage.getItem("token");
 
   const senderId = user?._id || user?.id;
-
   const [messages, setMessages] = useState([]);
   const [message, setMessage] = useState("");
   const [employerInfo, setEmployerInfo] = useState(null);
@@ -202,43 +198,45 @@ const ChatPage = () => {
   const jobId = null; // Optional job context
   const room = [senderId, employerId].sort().join("_");
 
-  // Scroll to latest message
+  // ✅ Scroll to latest message
   useEffect(() => {
-    if (messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
-    }
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  // Fetch employer info
+  // ✅ Fetch employer info
   useEffect(() => {
     if (!employerId) return;
 
     const fetchEmployer = async () => {
       try {
-        const res = await axios.get(`http://localhost:9999/api/auth/${employerId}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        const res = await axios.get(
+          `http://localhost:9999/api/auth/${employerId}`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
         setEmployerInfo(res.data?.data);
       } catch (err) {
-        console.error("❌ Error fetching employer info:", err.response?.data || err.message);
+        console.error("❌ Error fetching employer info:", err);
       }
     };
 
     fetchEmployer();
   }, [employerId, token]);
 
-  // Join socket room and listen for messages
+  // ✅ Join socket room and receive real-time messages
   useEffect(() => {
     if (!socket || !senderId || !employerId) return;
-
-    console.log("📡 Socket ready:", socket);
 
     socket.emit("join", { room });
 
     socket.on("receiveMessage", (data) => {
-      setMessages((prev) => [...prev, data]);
+      if (
+        (data.senderId === senderId && data.receiverId === employerId) ||
+        (data.senderId === employerId && data.receiverId === senderId)
+      ) {
+        setMessages((prev) => [...prev, data]);
+      }
     });
 
     return () => {
@@ -246,64 +244,53 @@ const ChatPage = () => {
     };
   }, [socket, room, senderId, employerId]);
 
-  // Fetch previous messages
+  // ✅ Load chat history on mount or when employerId changes
   useEffect(() => {
-    const idForJob = jobId || "null";
+    if (!senderId || !employerId) return;
+    const jobParam = jobId || "null";
 
-    if (!senderId || !employerId) {
-      console.error("❌ Missing user ID or employer ID");
-      return;
-    }
+    const fetchMessages = async () => {
+      try {
+        const res = await axios.get(
+          `http://localhost:9999/api/chat/${jobParam}/${senderId}/${employerId}`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+        setMessages(res.data.data || []);
+      } catch (err) {
+        console.error("❌ Error loading messages:", err);
+      }
+    };
 
-    console.log("📨 Fetching messages with:", {
-      jobId: idForJob,
-      senderId,
-      receiverId: employerId,
-    });
-
-    axios
-      .get(`http://localhost:9999/api/chat/${idForJob}/${senderId}/${employerId}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
-      .then((res) => setMessages(res.data.data))
-      .catch((err) =>
-        console.error("❌ Error loading messages:", err.response?.data || err.message)
-      );
+    fetchMessages();
   }, [senderId, employerId]);
 
-  // Send new message
-const handleSend = async () => {
-  if (!message.trim()) return;
+  // ✅ Send new message
+  const handleSend = async () => {
+    if (!message.trim()) return;
 
-  const now = new Date();
+    const now = new Date();
+    const data = {
+      senderId,
+      receiverId: employerId,
+      content: message.trim(),
+      jobId,
+      createdAt: now.toISOString(),
+    };
 
-  const data = {
-    senderId,
-    receiverId: employerId,
-    content: message,
-    jobId,
-    createdAt: now.toISOString(), // so the time is sent along
-  };
+    try {
+      await axios.post("http://localhost:9999/api/chat/send", data, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
 
-  try {
-    await axios.post("http://localhost:9999/api/chat/send", data, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+      if (socket) socket.emit("sendMessage", { ...data, room });
 
-    if (socket) {
-      socket.emit("sendMessage", { ...data, room });
+      setMessage("");
+    } catch (err) {
+      console.error("❌ Error sending message:", err);
     }
-
-    setMessage(""); // ✅ just clear message input
-  } catch (err) {
-    console.error("❌ Error sending message:", err.response?.data || err.message);
-  }
-};
-
+  };
 
   return (
     <div className="p-4 max-w-xl mx-auto">
@@ -342,6 +329,7 @@ const handleSend = async () => {
           value={message}
           onChange={(e) => setMessage(e.target.value)}
           placeholder="Type a message..."
+          onKeyDown={(e) => e.key === "Enter" && handleSend()}
         />
         <button
           onClick={handleSend}
@@ -355,4 +343,3 @@ const handleSend = async () => {
 };
 
 export default ChatPage;
-

@@ -15,6 +15,7 @@ import EmployerPost from "./pages/EmployerPost";
 import EmployerPostEdit from "./pages/EmployerPostEdit";
 import JSProfile from "./pages/JSProfile";
 import ChatPage from "./pages/ChatPage";
+import ChatPageEmployer from "./pages/ChatPageEmployer";
 
 
 
@@ -101,6 +102,10 @@ const router = createBrowserRouter([
   {
     path:'/chat/:employerId',
     element: <ChatPage/>
+  },
+  {
+    path:'/employer-chat',
+    element : <ChatPageEmployer/>
   }
 ]);
 
