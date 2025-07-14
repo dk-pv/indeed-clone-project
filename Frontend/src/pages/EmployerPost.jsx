@@ -193,6 +193,18 @@ const MyPosts = () => {
                     >
                       Delete
                     </button>
+                    <button
+                      className="text-gray-600 hover:text-gray-800 text-sm font-medium"
+                      onClick={() => {
+                        if (job._id) {
+                          navigate(`/job-applicants/${job._id}`);
+                        } else {
+                          console.error("❌ job._id is missing", job);
+                        }
+                      }}
+                    >
+                      View Applicants
+                    </button>
                   </div>
                 </div>
               </div>

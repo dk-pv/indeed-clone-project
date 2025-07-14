@@ -16,8 +16,7 @@ import EmployerPostEdit from "./pages/EmployerPostEdit";
 import JSProfile from "./pages/JSProfile";
 import ChatPage from "./pages/ChatPage";
 import ChatPageEmployer from "./pages/ChatPageEmployer";
-
-
+import EmployerPostViewApplicants from "./pages/EmployerPostViewApplicants";
 
 const router = createBrowserRouter([
   {
@@ -77,6 +76,14 @@ const router = createBrowserRouter([
           </ProtectedRoute>
         ),
       },
+      {
+        path: "/job-applicants/:jobId",
+        element: (
+          <ProtectedRoute requiredRole="employer">
+            <EmployerPostViewApplicants />
+          </ProtectedRoute>
+        ),
+      },
     ],
   },
   {
@@ -100,13 +107,13 @@ const router = createBrowserRouter([
     ),
   },
   {
-    path:'/chat/:employerId',
-    element: <ChatPage/>
+    path: "/chat/:employerId",
+    element: <ChatPage />,
   },
   {
-    path:'/employer-chat',
-    element : <ChatPageEmployer/>
-  }
+    path: "/employer-chat",
+    element: <ChatPageEmployer />,
+  },
 ]);
 
 const App = () => {

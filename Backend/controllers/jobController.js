@@ -5,6 +5,7 @@ import { sendJobApplicationEmail } from "../utils/sendJobApplicationEmail.js";
 import asyncHandler from "express-async-handler";
 import User from "../models/userModel.js";
 
+
 export const createJob = asyncHandler(async (req, res) => {
   const { company, job, details, payAndBenefits, preferences, status } =
     req.body;
@@ -148,6 +149,19 @@ export const deleteJob = asyncHandler(async (req, res) => {
   });
 });
 
+
+
+
+
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+
+
+
 // apply job
 
 export const applyJob = async (req, res) => {
@@ -206,7 +220,7 @@ export const applyJob = async (req, res) => {
     await Application.create({
       user: req.user._id,
       job: jobId,
-      status: "applied",
+      status: "pending",
     });
 
     // Extract name/phone/email from profile.personalInfo
@@ -247,30 +261,121 @@ export const applyJob = async (req, res) => {
   }
 };
 
-export const getAppliedJobs = async (req, res) => {
+
+export const getApplicantsByJob = async (req, res) => {
   try {
-    const applications = await Application.find({
-      user: req.user._id,
-    }).populate("job");
+    const { jobId } = req.params;
+    console.log("📌 Job ID:", jobId);
+    console.log("🔐 Logged in user:", req.user._id);
 
-    const jobIds = applications.map((app) => app.job._id.toString());
+    const job = await Job.findById(jobId);
+    if (!job) {
+      console.log("❌ Job not found");
+      return res.status(404).json({ success: false, message: "Job not found" });
+    }
 
-    res.status(200).json({
-      success: true,
-      data: applications,
-      jobIds,
-    });
+    if (job.employer.toString() !== req.user._id.toString()) {
+      console.log("🚫 Unauthorized employer");
+      return res.status(403).json({ success: false, message: "Access denied" });
+    }
+
+    const applications = await Application.find({ job: jobId })
+   
+  .populate("user", "email _id") // ✅ include _id explicitly
+  .lean();
+
+
+    console.log("📝 Applications found:", applications.length);
+
+    const enriched = await Promise.all(
+      applications.map(async (app) => {
+        console.log("🔎 Fetching profile for user:", app.user._id);
+        const profile = await Profile.findOne({ user: app.user._id });
+
+        const name = `${profile?.personalInfo?.firstName || ""} ${profile?.personalInfo?.lastName || ""}`.trim();
+        const email = profile?.personalInfo?.email || app.user.email || "N/A";
+        const phone = profile?.personalInfo?.phone || "N/A";
+        const resumeUrl = profile?.resume?.filename
+          ? `http://localhost:9999/uploads/resumes/${profile.resume.filename}`
+          : "";
+
+        return {
+          _id: app._id,
+          user: {
+            _id: app.user._id,
+            name,
+            email,
+            phone,
+            resumeUrl,
+          },
+          status: app.status,
+        };
+      })
+    );
+
+    console.log("✅ Returning enriched applicants");
+
+    res.status(200).json({ success: true, data: enriched });
   } catch (err) {
-    console.error("Error fetching applied jobs:", err);
-    res
-      .status(500)
-      .json({ success: false, message: "Failed to fetch applied jobs" });
+    console.error("❌ Error in getApplicantsByJob:", err);
+    res.status(500).json({
+      success: false,
+      message: "Something went wrong while fetching applicants",
+    });
   }
 };
 
-// save job
 
-// ✅ Save a job
+
+
+
+export const updateApplicationStatus = async (req, res) => {
+  try {
+    const { applicationId } = req.params;
+    const { status } = req.body;
+
+    const validStatuses = ["pending", "reject", "finalist", "ready for interview"];
+    if (!validStatuses.includes(status)) {
+      return res.status(400).json({ success: false, message: "Invalid status" });
+    }
+
+    const updated = await Application.findByIdAndUpdate(
+      applicationId,
+      { status },
+      { new: true }
+    );
+
+    if (!updated) {
+      return res.status(404).json({ success: false, message: "Application not found" });
+    }
+
+    res.status(200).json({ success: true, message: "Status updated successfully", data: updated });
+  } catch (err) {
+    console.error("Error updating status:", err);
+    res.status(500).json({ success: false, message: "Failed to update status" });
+  }
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+
+
+// Save a job
 export const saveJob = async (req, res) => {
   try {
     const { jobId } = req.params;

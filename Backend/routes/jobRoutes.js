@@ -48,10 +48,11 @@ import {
   getAJob,
   getEmployerJobs,
   applyJob,
-  getAppliedJobs,
   saveJob,
   removeSavedJob,
-  getSavedJobs
+  getSavedJobs,
+  getApplicantsByJob,
+  updateApplicationStatus
 } from "../controllers/jobController.js";
 import { verifyToken, verifyEmployer } from "../middleware/authMiddleware.js";
 
@@ -66,7 +67,8 @@ router.delete("/delete/:id", verifyToken, verifyEmployer, deleteJob);
 // Public or user routes
 router.get("/all", getAllJobs);
 router.post("/apply/:jobId", verifyToken, applyJob);
-router.get("/applied", verifyToken, getAppliedJobs);
+router.get("/applicants/:jobId", verifyToken, getApplicantsByJob);
+router.put("/update-status/:applicationId", verifyToken, updateApplicationStatus);
 
 router.post("/save/:jobId", verifyToken, saveJob);
 router.delete("/saved/:jobId", verifyToken, removeSavedJob);
