@@ -9,7 +9,7 @@ const EmployerPostViewApplicants = () => {
   const [applications, setApplications] = useState([]);
 
   useEffect(() => {
-    console.log("📦 Job ID:", jobId); // ✅ Confirm jobId is NOT undefined
+    console.log("📦 Job ID:", jobId); 
     fetchApplicants();
   }, [jobId]);
 
@@ -24,7 +24,7 @@ const EmployerPostViewApplicants = () => {
           },
         }
       );
-      console.log("📥 Applicants fetched:", res.data.data); // ✅ See what comes back
+      console.log("📥 Applicants fetched:", res.data.data); 
       setApplications(res.data.data);
     } catch (err) {
       console.error("❌ Failed to fetch applicants", err);
