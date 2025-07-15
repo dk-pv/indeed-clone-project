@@ -46,55 +46,87 @@ const SavePagejobpost = () => {
   };
 
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold mb-6">Saved Jobs</h1>
-
-      {savedJobs.length === 0 ? (
-        <p>No saved jobs yet.</p>
-      ) : (
-        <div className="space-y-4">
-          {savedJobs.map((jobItem) => (
-            <div
-              key={jobItem._id}
-              className="border p-4 rounded-xl shadow-sm flex justify-between items-start"
-              onClick={() => handleJobClick(jobItem._id)}
-            >
-              <div>
-                <h2 className="text-xl font-semibold">{jobItem.job?.title}</h2>
-                <p className="text-gray-600">{jobItem.company?.name}</p>
-                <p className="text-sm mt-1">
-                  Type: {jobItem.jobTypes?.join(", ")}
-                </p>
-                <p className="text-sm">
-                  Schedule: {jobItem.schedules?.join(", ")}
-                </p>
-                <p className="text-sm">
-                  Pay:{" "}
-                  {jobItem.payRange.min && jobItem.payRange.max
-                    ? `${jobItem.payRange.min} - ${jobItem.payRange.max} ${jobItem.payRange.currency}`
-                    : "Not specified"}
-                </p>
-                <p className="text-sm">
-                  Timeline: {jobItem.recruitmentTimeline}
-                </p>
-                <p className="text-sm text-gray-700 mt-2">
-                  {jobItem.job?.description?.slice(0, 80)}...
-                </p>
-              </div>
-
-              <button
-                onClick={(e) => {
-                  e.stopPropagation(); //  prevent bubbling to card
-                  handleRemove(jobItem._id);
-                }}
-                className="text-red-600 hover:underline ml-4"
-              >
-                Remove
-              </button>
-            </div>
-          ))}
+    <div className="min-h-screen bg-gray-50 py-6 px-4">
+      <div className="max-w-4xl mx-auto">
+        {/* Header */}
+        <div className="mb-8">
+          <h1 className="text-2xl font-semibold text-gray-900 mb-1">
+            Saved Jobs
+          </h1>
+          <p className="text-gray-600">
+            {savedJobs.length} job{savedJobs.length !== 1 ? "s" : ""} saved
+          </p>
         </div>
-      )}
+
+        {savedJobs.length === 0 ? (
+          <div className="text-center py-16">
+            <div className="bg-white rounded-lg border border-gray-200 p-8 max-w-md mx-auto">
+              <h3 className="text-lg font-medium text-gray-900 mb-2">
+                No saved jobs yet
+              </h3>
+              <p className="text-gray-600">Jobs you save will appear here</p>
+            </div>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {savedJobs.map((jobItem) => (
+              <div
+                key={jobItem._id}
+                onClick={() => handleJobClick(jobItem._id)}
+                className="bg-white rounded-lg border border-gray-200 hover:shadow-md transition-shadow duration-200 cursor-pointer"
+              >
+                <div className="p-6">
+                  {/* Job Header */}
+                  <div className="flex items-start justify-between mb-4">
+                    <div className="flex-1">
+                      <h2 className="text-xl font-medium text-blue-600 hover:text-blue-700 transition-colors duration-200 mb-1">
+                        {jobItem.job?.title}
+                      </h2>
+                      <p className="text-gray-700 font-medium mb-2">
+                        {jobItem.company?.name}
+                      </p>
+                      <div className="flex flex-wrap gap-4 text-sm text-gray-600">
+                        <span>{jobItem.jobTypes?.join(", ")}</span>
+                        <span>•</span>
+                        <span>{jobItem.schedules?.join(", ")}</span>
+                        <span>•</span>
+                        <span>
+                          {jobItem.payRange.min && jobItem.payRange.max
+                            ? `${jobItem.payRange.min} - ${jobItem.payRange.max} ${jobItem.payRange.currency}`
+                            : "Salary not specified"}
+                        </span>
+                      </div>
+                    </div>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleRemove(jobItem._id);
+                      }}
+                      className="text-blue-600 hover:text-blue-700 text-sm font-medium hover:underline ml-4"
+                    >
+                      Remove
+                    </button>
+                  </div>
+
+                  {/* Timeline */}
+                  <div className="mb-3">
+                    <span className="text-sm text-gray-600">
+                      <strong>Timeline:</strong> {jobItem.recruitmentTimeline}
+                    </span>
+                  </div>
+
+                  {/* Description */}
+                  <div className="border-t pt-4">
+                    <p className="text-gray-700 text-sm leading-relaxed">
+                      {jobItem.job?.description?.slice(0, 150)}...
+                    </p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 };
