@@ -4,6 +4,8 @@ import Profile from "../models/profileModel.js";
 import { sendJobApplicationEmail } from "../utils/sendJobApplicationEmail.js";
 import asyncHandler from "express-async-handler";
 import User from "../models/userModel.js";
+import sendStatusUpdateEmail from "../utils/statusUpdateMailer.js";
+
 
 
 export const createJob = asyncHandler(async (req, res) => {
@@ -339,19 +341,39 @@ export const updateApplicationStatus = async (req, res) => {
       return res.status(400).json({ success: false, message: "Invalid status" });
     }
 
-    const updated = await Application.findByIdAndUpdate(
-      applicationId,
-      { status },
-      { new: true }
-    );
-
-    if (!updated) {
+    const application = await Application.findById(applicationId).populate("user", "_id");
+    if (!application) {
       return res.status(404).json({ success: false, message: "Application not found" });
     }
 
-    res.status(200).json({ success: true, message: "Status updated successfully", data: updated });
+    application.status = status;
+    await application.save();
+
+    // Send email only for non-pending statuses
+    if (status !== "pending") {
+      const profile = await Profile.findOne({ user: application.user._id });
+      const job = await Job.findById(application.job);
+
+      const name = `${profile?.personalInfo?.firstName || "Applicant"}`;
+      const email = profile?.personalInfo?.email;
+
+      if (email && job?.job?.title) {
+        await sendStatusUpdateEmail({
+          to: email,
+          applicantName: name,
+          jobTitle: job.job.title,
+          newStatus: status,
+        });
+      }
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Status updated and email sent",
+      data: application,
+    });
   } catch (err) {
-    console.error("Error updating status:", err);
+    console.error("❌ Error updating status:", err);
     res.status(500).json({ success: false, message: "Failed to update status" });
   }
 };

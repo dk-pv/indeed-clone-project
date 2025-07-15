@@ -15,7 +15,7 @@ const applicationSchema = new mongoose.Schema(
     status: {
       type: String,
       enum: ["pending", "reject", "finalist", "ready for interview"],
-      default: "pending", // ✅ fixed
+      default: "pending",
     },
   },
   {
