@@ -91,9 +91,12 @@ const Navbar = () => {
         <div className="hidden min-[990px]:flex items-center space-x-6">
           {isLoggedIn ? (
             <div className="flex items-center space-x-5">
-              <button className="p-2 text-gray-500 hover:text-blue-600 transition-colors duration-200 hover:bg-gray-50 rounded-full">
+              <Link to={'/saved-jobs'}>
+                 <button className="p-2 text-gray-500 hover:text-blue-600 transition-colors duration-200 hover:bg-gray-50 rounded-full">
                 <Bookmark className="h-5 w-5" />
               </button>
+              </Link>
+             
 
               {userRole === "employer" && (
                 <Link to={"/employer-chat"}>

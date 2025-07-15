@@ -381,6 +381,16 @@ export const updateApplicationStatus = async (req, res) => {
 
 
 
+export const getAppliedJobs = async (req, res) => {
+  try {
+    const applications = await Application.find({ user: req.user._id }).populate("job");
+    const appliedJobs = applications.map(app => app.job);
+    res.status(200).json({ success: true, data: appliedJobs });
+  } catch (err) {
+    console.error("❌ Error in getAppliedJobs:", err);
+    res.status(500).json({ success: false, message: "Something went wrong" });
+  }
+};
 
 
 
@@ -459,17 +469,33 @@ export const removeSavedJob = async (req, res) => {
   }
 };
 
-// ✅ Get all saved jobs
+
+
+
 export const getSavedJobs = async (req, res) => {
   try {
+    console.log("✅ Getting saved jobs for user:", req.user);
+
+    if (!req.user || !req.user._id) {
+      return res
+        .status(401)
+        .json({ success: false, message: "Unauthorized user" });
+    }
+
     const user = await User.findById(req.user._id).populate("savedJobs");
+
+    if (!user) {
+      return res
+        .status(404)
+        .json({ success: false, message: "User not found" });
+    }
 
     res.status(200).json({
       success: true,
       savedJobs: user.savedJobs,
     });
   } catch (err) {
-    console.error("Get Saved Jobs Error:", err.message);
+    console.error("❌ Get Saved Jobs Error:", err.message);
     res.status(500).json({ success: false, message: "Internal Server Error" });
   }
 };

@@ -17,6 +17,7 @@ import JSProfile from "./pages/JSProfile";
 import ChatPage from "./pages/ChatPage";
 import ChatPageEmployer from "./pages/ChatPageEmployer";
 import EmployerPostViewApplicants from "./pages/EmployerPostViewApplicants";
+import SavePagejobpost from "./pages/SavePagejobpost";
 
 const router = createBrowserRouter([
   {
@@ -114,6 +115,10 @@ const router = createBrowserRouter([
     path: "/employer-chat",
     element: <ChatPageEmployer />,
   },
+  {
+    path:'/saved-jobs',
+    element:<SavePagejobpost/>
+  }
 ]);
 
 const App = () => {

@@ -1,41 +1,3 @@
-// import express from "express";
-// import {
-//   createJob,
-//   updateJob,
-//   deleteJob,
-//   getAllJobs,
-//   getAJob,
-//   getEmployerJobs,
-//   applyJob,
-//   getAppliedJobs ,
-//   saveJob , 
-//   removeSavedJob,
-//   getSavedJobs
-// } from "../controllers/jobController.js";
-// import { verifyToken, verifyEmployer } from "../middleware/authMiddleware.js";
-
-// const router = express.Router();
-
-// // Employer-only routes
-// router.post("/create", verifyToken, verifyEmployer, createJob);
-// router.get("/employer/my-jobs", verifyToken, verifyEmployer, getEmployerJobs);
-// router.put("/update/:id", verifyToken, verifyEmployer, updateJob);
-// router.delete("/delete/:id", verifyToken, verifyEmployer, deleteJob);
-// router.get("/all", getAllJobs);
-// router.get("/:id", getAJob);
-
-
-// router.post("/apply/:jobId", verifyToken, applyJob);
-// router.get("/applied", verifyToken, getAppliedJobs); 
-
-
-// router.post("/save/:jobId", verifyToken, saveJob);
-// router.delete("/saved/:jobId", verifyToken, removeSavedJob);
-// router.get("/save/all", verifyToken, getSavedJobs);
-
-
-
-// export default router;
 
 
 
@@ -52,7 +14,8 @@ import {
   removeSavedJob,
   getSavedJobs,
   getApplicantsByJob,
-  updateApplicationStatus
+  updateApplicationStatus,
+  getAppliedJobs
 } from "../controllers/jobController.js";
 import { verifyToken, verifyEmployer } from "../middleware/authMiddleware.js";
 
@@ -69,6 +32,7 @@ router.get("/all", getAllJobs);
 router.post("/apply/:jobId", verifyToken, applyJob);
 router.get("/applicants/:jobId", verifyToken, getApplicantsByJob);
 router.put("/update-status/:applicationId", verifyToken, updateApplicationStatus);
+router.get("/applied", verifyToken, getAppliedJobs);
 
 router.post("/save/:jobId", verifyToken, saveJob);
 router.delete("/saved/:jobId", verifyToken, removeSavedJob);

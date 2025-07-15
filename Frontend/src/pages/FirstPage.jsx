@@ -85,7 +85,7 @@ const FirstPage = () => {
 
   const handleApplyJob = (jobId) => {
     setSelectedJobIdToApply(jobId);
-    setShowApplyModal(true); // Show confirmation modal
+    setShowApplyModal(true);
   };
 
   const fetchAppliedJobs = async () => {
@@ -98,7 +98,7 @@ const FirstPage = () => {
       });
 
       if (res.data.success) {
-        setAppliedJobIds(res.data.jobIds || []);
+        setAppliedJobIds(res.data.data.map((job) => job._id) || []);
       }
     } catch (err) {
       console.error("❌ Failed to fetch applied jobs", err);
@@ -582,7 +582,7 @@ const FirstPage = () => {
                       {selectedJob.personalInfo?.location}
                     </p>
                     <p className="text-gray-600 text-sm mb-4">
-                       {selectedJob.personalInfo?.phone}
+                      {selectedJob.personalInfo?.phone}
                     </p>
                     <br />
                     {selectedJob.skills?.length > 0 && (
