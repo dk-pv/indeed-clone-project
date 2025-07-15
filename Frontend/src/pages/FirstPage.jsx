@@ -582,7 +582,7 @@ const FirstPage = () => {
                       {selectedJob.personalInfo?.location}
                     </p>
                     <p className="text-gray-600 text-sm mb-4">
-                      📞 {selectedJob.personalInfo?.phone}
+                       {selectedJob.personalInfo?.phone}
                     </p>
                     <br />
                     {selectedJob.skills?.length > 0 && (
