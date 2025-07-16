@@ -156,22 +156,15 @@ export default function PreferencesForm({
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Primary Email Address <span className="text-red-500">*</span>
                 </label>
+
                 <input
                   type="email"
-                  {...register("email", {
-                    required: "Email is required",
-                    pattern: {
-                      value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                      message: "Invalid email address",
-                    },
-                  })}
-                  className={`w-full px-4 py-3 border-2 rounded-xl transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                    errors.email
-                      ? "border-red-300 bg-red-50"
-                      : "border-gray-200 hover:border-gray-300 focus:border-blue-500"
-                  }`}
-                  placeholder="Enter your primary email address"
+                  value={formData?.email || ""}
+                  readOnly
+                  disabled
+                  className="w-full px-4 py-3 bg-gray-100 text-gray-500 border-2 border-gray-200 rounded-xl"
                 />
+
                 {errors.email && (
                   <div className="flex items-center space-x-2 mt-2">
                     <svg

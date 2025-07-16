@@ -14,6 +14,8 @@ import jobRoutes from "./routes/jobRoutes.js";
 import searchRoutes from "./routes/searchRoutes.js";
 import profileRoutes from "./routes/profileRoutes.js";
 import chatRoutes from "./routes/chatRoutes.js";
+import companyRoutes from "./routes/companyRoutes.js";
+
 
 // Middleware
 import errorHandler from "./middleware/errorHandler.js";
@@ -42,6 +44,8 @@ app.use("/api/job", jobRoutes);
 app.use("/api/search", searchRoutes);
 app.use("/api/profile", profileRoutes);
 app.use("/api/chat", chatRoutes);
+app.use("/api/company", companyRoutes);
+
 
 // Error handler
 app.use(errorHandler);

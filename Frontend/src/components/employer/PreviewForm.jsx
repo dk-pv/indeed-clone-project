@@ -7,6 +7,9 @@ export default function PreviewForm({
   handleFinalSubmit,
   navigate,
 }) {
+  console.log("🧩 PreviewForm mounted");
+console.log("handleFinalSubmit:", typeof handleFinalSubmit);
+
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState(null);
 

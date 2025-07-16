@@ -5,20 +5,30 @@ import { sendJobApplicationEmail } from "../utils/sendJobApplicationEmail.js";
 import asyncHandler from "express-async-handler";
 import User from "../models/userModel.js";
 import sendStatusUpdateEmail from "../utils/statusUpdateMailer.js";
+import Company from "../models/companyModel.js"; // ✅ Add this
 
 
 
 export const createJob = asyncHandler(async (req, res) => {
-  const { company, job, details, payAndBenefits, preferences, status } =
-    req.body;
+  const { job, details, payAndBenefits, preferences, status } = req.body;
+
+  // ✅ Step 1: Get employer's company profile
+  const companyProfile = await Company.findOne({ user: req.user._id });
+
+  if (!companyProfile) {
+    return res.status(400).json({
+      success: false,
+      message: "Please complete your company profile before posting a job.",
+    });
+  }
 
   const newJob = await Job.create({
     employer: req.user._id,
     company: {
-      name: company.name,
-      contactPerson: company.contactPerson,
-      phone: company.phone,
-      referralSource: company.referralSource,
+      name: companyProfile.name, // ✅ Auto-filled
+      contactPerson: req.body.company?.contactPerson || "",
+      phone: req.body.company?.phone || "",
+      referralSource: req.body.company?.referralSource || "",
     },
 
     job: {

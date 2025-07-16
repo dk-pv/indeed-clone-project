@@ -1,7 +1,7 @@
 // src/components/employer/EmployerPage.jsx
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
-import { useNavigate } from "react-router-dom";
+import { replace, useNavigate } from "react-router-dom";
 import jobpostImg from "../../assets/jobpost.png";
 
 // Components
@@ -15,11 +15,123 @@ import PayBenefitsForm from "./PayBenefitsForm";
 import PreferencesForm from "./PreferencesForm";
 import PreviewForm from "./PreviewForm";
 
+import useAlert from "../../hooks/useAlert"; // adjust path if needed
+import AlertMessage from "../common/AlertMessage"; // adjust path if needed
+
+let hasCheckedProfile = false;
+
 export default function EmployerPage() {
   const [userEmail, setUserEmail] = useState("");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [activeForm, setActiveForm] = useState("account");
+
+  const { alert, showAlert, hideAlert } = useAlert();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const isCompanyProfileCompleted = localStorage.getItem("hasCompanyProfile");
+
+    if (isCompanyProfileCompleted !== "true") {
+      // Disable back button if profile is not completed
+      const handlePopState = () => {
+        navigate("/update-company-profile", { replace: true });
+      };
+
+      // Push fake state to block back
+      window.history.pushState(null, "", window.location.href);
+      window.addEventListener("popstate", handlePopState);
+
+      return () => {
+        window.removeEventListener("popstate", handlePopState);
+      };
+    }
+  }, [navigate]);
+
+  useEffect(() => {
+    const profileExists = localStorage.getItem("hasCompanyProfile");
+    if (profileExists !== "true") {
+      navigate("/update-company-profile", { replace: true });
+    }
+  }, []);
+
+  useEffect(() => {
+    const checkCompanyProfile = async () => {
+      if (hasCheckedProfile) return;
+      hasCheckedProfile = true;
+
+      const token = localStorage.getItem("token");
+      if (!token) {
+        navigate("/auth");
+        return;
+      }
+
+      try {
+        const res = await fetch("http://localhost:9999/api/company/exists", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        const data = await res.json();
+        if (!data.exists) {
+          localStorage.setItem("hasCompanyProfile", "false");
+          showAlert(
+            "Please complete your company profile before posting a job.",
+            "warning",
+            4000
+          );
+          setTimeout(() => {
+            navigate("/update-company-profile", { replace: true });
+          }, 500);
+        } else {
+          localStorage.setItem("hasCompanyProfile", "true");
+        }
+      } catch (error) {
+        console.error("Company profile check failed:", error);
+        showAlert("Something went wrong while checking your profile.", "error");
+      }
+    };
+
+    checkCompanyProfile();
+  }, [navigate, showAlert]);
+
+  useEffect(() => {
+    const fetchCompanyProfile = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        const res = await fetch("http://localhost:9999/api/company", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        const data = await res.json();
+
+        if (data.success && data.data) {
+          setValue("companyName", data.data.name); // ✅ correct path now
+          setValue("email", data.data.email || ""); // fallback if email not available
+
+          localStorage.setItem(
+            "jobPostFormData",
+            JSON.stringify({
+              ...formData,
+              companyName: data.data.name,
+              email: data.data.email || "",
+            })
+          );
+        } else {
+          console.warn("Company data not found:", data);
+          showAlert("Company profile not found. Please update it.", "warning");
+          navigate("/update-company-profile", { replace: true });
+        }
+      } catch (err) {
+        console.error("Failed to load company profile:", err);
+        showAlert("Failed to fetch company info", "error");
+      }
+    };
+
+    fetchCompanyProfile();
+  }, []);
 
   const {
     register,
@@ -133,136 +245,68 @@ export default function EmployerPage() {
     }
   };
 
-  //  const handleFinalSubmit = async () => {
-  //   const jobPostData = {
-  //     company: {
-  //       name: formData.companyName,
-  //       contactPerson: formData.fullName,
-  //       phone: formData.phone,
-  //       referralSource: formData.referralSource,
-  //     },
-  //     job: {
-  //       title: formData.jobTitle,
-  //       description: formData.jobDescription,
-  //       location: {
-  //         type: formData.locationType,
-  //         city: formData.city,
-  //         area: formData.area,
-  //         pincode: formData.pincode,
-  //         address: formData.address,
-  //       },
-  //     },
-  //     details: {
-  //       jobTypes: formData.jobTypes,
-  //       schedules: formData.schedules,
-  //       hiringCount: formData.numberOfPeople,
-  //       timeline: formData.recruitmentTimeline,
-  //       requiredSkills: formData.requiredSkills || [],
-  //       graduateRequired: formData.graduateRequired || false,
-  //     },
-  //     payAndBenefits: {
-  //       minSalary: formData.payRange.min,
-  //       maxSalary: formData.payRange.max,
-  //       supplementalPay: formData.supplementalPay,
-  //       benefits: formData.benefits,
-  //     },
-  //     preferences: {
-  //       email: formData.email,
-  //       additionalEmails: formData.additionalEmails.filter((e) => e),
-  //       individualEmails: formData.individualEmails,
-  //       resumeRequired: formData.resumeRequired,
-  //       contactCandidates: formData.contactCandidates,
-  //     },
-  //   };
+  const handleFinalSubmit = async () => {
+  console.log("🚀 handleFinalSubmit called");
 
-  //   try {
-  //     const token = localStorage.getItem("token");
+  const user = JSON.parse(localStorage.getItem("user"));
+  if (!formData.companyName || !formData.fullName || !formData.phone) {
+  showAlert("Missing company info. Please fill all required fields.", "warning");
+  return;
+}
 
-  //     const response = await fetch("http://localhost:9999/api/job/create", {
-  //       method: "POST",
-  //       headers: {
-  //         "Content-Type": "application/json",
-  //         Authorization: `Bearer ${token}`,
-  //       },
-  //       body: JSON.stringify(jobPostData),
-  //     });
 
-  //     if (!response.ok) {
-  //       const contentType = response.headers.get("content-type");
-  //       if (contentType && contentType.includes("application/json")) {
-  //         const result = await response.json();
-  //         throw new Error(result.message || "Failed to submit job post");
-  //       } else {
-  //         const htmlError = await response.text();
-  //         console.error("Server returned HTML error:", htmlError);
-  //         throw new Error("Unexpected error (HTML response)");
-  //       }
-  //     }
+  const token = localStorage.getItem("token");
 
-  //     const result = await response.json();
-  //     localStorage.removeItem("jobPostFormData");
-  //     navigate("/success");
-  //   } catch (error) {
-  //     console.error("Error details:", error);
-  //     console.log("Failed request data:", jobPostData);
-  //     alert(`Error: ${error.message}`);
-  //   }
-  // };
-
-const handleFinalSubmit = async () => {
   const jobPostData = {
-    company: {
-      name: formData.companyName,
-      contactPerson: formData.fullName,
-      phone: formData.phone,
-      referralSource: formData.referralSource,
+  job: {
+    title: formData.jobTitle,
+    description: formData.jobDescription,
+    location: {
+      city: formData.city,
+      area: formData.area,
+      pincode: formData.pincode,
+      address: formData.address,
     },
-    job: {
-      title: formData.jobTitle,
-      description: formData.jobDescription,
-      location: {
-        type: formData.locationType,
-        city: formData.city,
-        area: formData.area,
-        pincode: formData.pincode,
-        address: formData.address,
-      },
-    },
-    details: {
-      jobTypes: formData.jobTypes,
-      schedules: formData.schedules,
-      hiringCount: formData.numberOfPeople,
-      timeline: formData.recruitmentTimeline,
-      requiredSkills: formData.requiredSkills || [],
-      graduateRequired: formData.graduateRequired || false,
-    },
-    payAndBenefits: {
-      minSalary: formData.payRange.min,
-      maxSalary: formData.payRange.max,
-      supplementalPay: formData.supplementalPay,
-      benefits: formData.benefits,
-    },
-    preferences: {
-      email: formData.email,
-      additionalEmails: formData.additionalEmails.filter((e) => e),
-      individualEmails: formData.individualEmails,
-      resumeRequired: formData.resumeRequired,
-      contactCandidates: formData.contactCandidates,
-    },
-  };
+  },
+
+  company: {
+    name: formData.companyName,
+    contactPerson: formData.fullName,
+    phone: formData.phone,
+    referralSource: formData.referralSource,
+  },
+
+  details: {
+    jobTypes: formData.jobTypes,
+    schedules: formData.schedules,
+    hiringCount: formData.numberOfPeople,
+    timeline: formData.recruitmentTimeline,
+    requiredSkills: formData.requiredSkills,
+    graduateRequired: formData.graduateRequired,
+  },
+
+  payAndBenefits: {
+    minSalary: Number(formData.payRange?.min || 0),
+    maxSalary: Number(formData.payRange?.max || 0),
+    currency: "INR",
+    supplementalPay: formData.supplementalPay,
+    benefits: formData.benefits,
+  },
+
+  preferences: {
+    email: formData.email,
+    additionalEmails: (formData.additionalEmails || []).filter(Boolean),
+    individualEmails: formData.individualEmails,
+    resumeRequired: formData.resumeRequired,
+    contactCandidates: formData.contactCandidates,
+  },
+
+  status: "published", // optional, based on your backend
+};
+
 
   try {
-    // ✅ Fallback logic: first try token, else try user.token
-    let token = localStorage.getItem("token");
-
-    if (!token) {
-      const user = JSON.parse(localStorage.getItem("user"));
-      token = user?.token;
-    }
-
-    if (!token || token.split(".").length !== 3) {
-      throw new Error("Malformed or missing token in localStorage");
-    }
+    console.log("📦 Sending job post:", jobPostData);
 
     const response = await fetch("http://localhost:9999/api/job/create", {
       method: "POST",
@@ -273,28 +317,31 @@ const handleFinalSubmit = async () => {
       body: JSON.stringify(jobPostData),
     });
 
+    console.log("📥 Raw response:", response);
+
     if (!response.ok) {
       const contentType = response.headers.get("content-type");
+
       if (contentType && contentType.includes("application/json")) {
         const result = await response.json();
+        console.error("❌ API Error JSON:", result);
         throw new Error(result.message || "Failed to submit job post");
       } else {
         const htmlError = await response.text();
-        console.error("Server returned HTML error:", htmlError);
+        console.error("❌ API Error HTML:", htmlError);
         throw new Error("Unexpected error (HTML response)");
       }
     }
 
     const result = await response.json();
+    console.log("✅ Job post successful:", result);
     localStorage.removeItem("jobPostFormData");
     navigate("/success");
   } catch (error) {
-    console.error("Error details:", error);
-    console.log("Failed request data:", jobPostData);
-    alert(`Error: ${error.message}`);
+    console.error("❌ Submission Error:", error);
+    showAlert(`Error: ${error.message}`, "error");
   }
 };
-
 
 
   return (
@@ -304,6 +351,13 @@ const handleFinalSubmit = async () => {
         isDropdownOpen={isDropdownOpen}
         setIsDropdownOpen={setIsDropdownOpen}
       />
+      {alert && (
+        <AlertMessage
+          type={alert.type}
+          message={alert.message}
+          onClose={hideAlert}
+        />
+      )}
 
       {/* Header Image */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">

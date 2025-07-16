@@ -18,6 +18,7 @@ import ChatPage from "./pages/ChatPage";
 import ChatPageEmployer from "./pages/ChatPageEmployer";
 import EmployerPostViewApplicants from "./pages/EmployerPostViewApplicants";
 import SavePagejobpost from "./pages/SavePagejobpost";
+import CompanyProfileForm from "./pages/CompanyProfileForm";
 
 const router = createBrowserRouter([
   {
@@ -116,9 +117,17 @@ const router = createBrowserRouter([
     element: <ChatPageEmployer />,
   },
   {
-    path:'/saved-jobs',
-    element:<SavePagejobpost/>
-  }
+    path: "/saved-jobs",
+    element: <SavePagejobpost />,
+  },
+  {
+    path: "/update-company-profile",
+    element: (
+      <ProtectedRoute requiredRole="employer">
+        <CompanyProfileForm />
+      </ProtectedRoute>
+    ),
+  },
 ]);
 
 const App = () => {

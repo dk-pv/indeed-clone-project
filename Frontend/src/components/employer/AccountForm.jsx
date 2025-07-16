@@ -119,24 +119,13 @@ export default function AccountForm({
               </label>
               <input
                 type="text"
-                {...register("companyName", {
-                  required: "Company name is required",
-                  minLength: {
-                    value: 2,
-                    message: "Company name must be at least 2 characters",
-                  },
-                  pattern: {
-                    value: /^[a-zA-Z0-9\s&.,'-]+$/,
-                    message: "Company name contains invalid characters",
-                  },
-                })}
-                className={`w-full px-4 py-3 border-2 rounded-xl transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                  errors.companyName
-                    ? "border-red-300 bg-red-50"
-                    : "border-gray-200 hover:border-gray-300 focus:border-blue-500"
-                }`}
+                value={formData?.companyName || ""}
+                readOnly
+                disabled
+                className="w-full px-4 py-3 bg-gray-100 text-gray-500 border-2 rounded-xl cursor-not-allowed"
                 placeholder="e.g. Tech Solutions Inc."
               />
+
               {errors.companyName && (
                 <div className="flex items-center space-x-2 mt-2">
                   <svg

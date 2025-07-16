@@ -38,6 +38,32 @@ const SingleEntryAuth = () => {
     return () => clearInterval(timer);
   }, [resendCooldown]);
 
+
+  const checkEmployerProfile = async (token, role) => {
+  if (role !== "employer") {
+    navigate("/", { replace: true });
+    return;
+  }
+
+  try {
+    const res = await axios.get("http://localhost:9999/api/company/exists", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (res.data.exists) {
+      navigate("/", { replace: true }); // ✅ Company profile already set
+    } else {
+      navigate("/update-company-profile", { replace: true }); // ❗ Profile not set
+    }
+  } catch (err) {
+    console.error("Error checking company profile", err);
+    navigate("/", { replace: true });
+  }
+};
+
+
   const isEmail = (input) => /\S+@\S+\.\S+/.test(input);
 
   const handleSubmit = async (e) => {
@@ -130,7 +156,9 @@ const SingleEntryAuth = () => {
         localStorage.removeItem("userRole");
 
         showAlert("success", "OTP Verified. Logged in!");
-        setTimeout(() => navigate("/", { replace: true }), 1000);
+        // setTimeout(() => navigate("/", { replace: true }), 1000);
+        checkEmployerProfile(token, user.role); // ✅ Role-based navigation
+
       } else {
         setError("Invalid response from server");
         showAlert("error", "Invalid response from server");
@@ -200,7 +228,9 @@ const SingleEntryAuth = () => {
         localStorage.removeItem("userRole");
 
         showAlert("success", "Google login successful");
-        setTimeout(() => navigate("/", { replace: true }), 1000);
+        // setTimeout(() => navigate("/", { replace: true }), 1000);
+        checkEmployerProfile(jwtToken, user.role); // ✅ redirect after login
+
       } else {
         showAlert("error", "Invalid response from server");
       }
