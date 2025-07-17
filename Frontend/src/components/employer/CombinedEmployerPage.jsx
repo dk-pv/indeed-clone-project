@@ -108,8 +108,9 @@ export default function EmployerPage() {
         const data = await res.json();
 
         if (data.success && data.data) {
-          setValue("companyName", data.data.name); // ✅ correct path now
-          setValue("email", data.data.email || ""); // fallback if email not available
+          setValue("companyName", data.data.name); 
+          setValue("email", data.data.email || ""); 
+          setValue("field", data.data.field || ""); 
 
           localStorage.setItem(
             "jobPostFormData",
@@ -117,6 +118,7 @@ export default function EmployerPage() {
               ...formData,
               companyName: data.data.name,
               email: data.data.email || "",
+              field: data.data.field || "", 
             })
           );
         } else {
@@ -157,6 +159,7 @@ export default function EmployerPage() {
       pincode: "",
       address: "",
       jobDescription: "",
+        field: "",
 
       // Details
       jobTypes: [],
@@ -246,103 +249,103 @@ export default function EmployerPage() {
   };
 
   const handleFinalSubmit = async () => {
-  console.log("🚀 handleFinalSubmit called");
+    console.log("🚀 handleFinalSubmit called");
 
-  const user = JSON.parse(localStorage.getItem("user"));
-  if (!formData.companyName || !formData.fullName || !formData.phone) {
-  showAlert("Missing company info. Please fill all required fields.", "warning");
-  return;
-}
-
-
-  const token = localStorage.getItem("token");
-
-  const jobPostData = {
-  job: {
-    title: formData.jobTitle,
-    description: formData.jobDescription,
-    location: {
-      city: formData.city,
-      area: formData.area,
-      pincode: formData.pincode,
-      address: formData.address,
-    },
-  },
-
-  company: {
-    name: formData.companyName,
-    contactPerson: formData.fullName,
-    phone: formData.phone,
-    referralSource: formData.referralSource,
-  },
-
-  details: {
-    jobTypes: formData.jobTypes,
-    schedules: formData.schedules,
-    hiringCount: formData.numberOfPeople,
-    timeline: formData.recruitmentTimeline,
-    requiredSkills: formData.requiredSkills,
-    graduateRequired: formData.graduateRequired,
-  },
-
-  payAndBenefits: {
-    minSalary: Number(formData.payRange?.min || 0),
-    maxSalary: Number(formData.payRange?.max || 0),
-    currency: "INR",
-    supplementalPay: formData.supplementalPay,
-    benefits: formData.benefits,
-  },
-
-  preferences: {
-    email: formData.email,
-    additionalEmails: (formData.additionalEmails || []).filter(Boolean),
-    individualEmails: formData.individualEmails,
-    resumeRequired: formData.resumeRequired,
-    contactCandidates: formData.contactCandidates,
-  },
-
-  status: "published", // optional, based o
-};
-
-
-  try {
-    console.log("📦 Sending job post:", jobPostData);
-
-    const response = await fetch("http://localhost:9999/api/job/create", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify(jobPostData),
-    });
-
-    console.log("📥 Raw response:", response);
-
-    if (!response.ok) {
-      const contentType = response.headers.get("content-type");
-
-      if (contentType && contentType.includes("application/json")) {
-        const result = await response.json();
-        console.error("❌ API Error JSON:", result);
-        throw new Error(result.message || "Failed to submit job post");
-      } else {
-        const htmlError = await response.text();
-        console.error("❌ API Error HTML:", htmlError);
-        throw new Error("Unexpected error (HTML response)");
-      }
+    const user = JSON.parse(localStorage.getItem("user"));
+    if (!formData.companyName || !formData.fullName || !formData.phone) {
+      showAlert(
+        "Missing company info. Please fill all required fields.",
+        "warning"
+      );
+      return;
     }
 
-    const result = await response.json();
-    console.log("✅ Job post successful:", result);
-    localStorage.removeItem("jobPostFormData");
-    navigate("/success");
-  } catch (error) {
-    console.error("❌ Submission Error:", error);
-    showAlert(`Error: ${error.message}`, "error");
-  }
-};
+    const token = localStorage.getItem("token");
 
+    const jobPostData = {
+      job: {
+        title: formData.jobTitle,
+        description: formData.jobDescription,
+        location: {
+          city: formData.city,
+          area: formData.area,
+          pincode: formData.pincode,
+          address: formData.address,
+        },
+      },
+
+      company: {
+        name: formData.companyName,
+        contactPerson: formData.fullName,
+        phone: formData.phone,
+        referralSource: formData.referralSource,
+      },
+
+      details: {
+        jobTypes: formData.jobTypes,
+        schedules: formData.schedules,
+        hiringCount: formData.numberOfPeople,
+        timeline: formData.recruitmentTimeline,
+        requiredSkills: formData.requiredSkills,
+        graduateRequired: formData.graduateRequired,
+      },
+
+      payAndBenefits: {
+        minSalary: Number(formData.payRange?.min || 0),
+        maxSalary: Number(formData.payRange?.max || 0),
+        currency: "INR",
+        supplementalPay: formData.supplementalPay,
+        benefits: formData.benefits,
+      },
+
+      preferences: {
+        email: formData.email,
+        additionalEmails: (formData.additionalEmails || []).filter(Boolean),
+        individualEmails: formData.individualEmails,
+        resumeRequired: formData.resumeRequired,
+        contactCandidates: formData.contactCandidates,
+      },
+
+      status: "published", // optional, based o
+    };
+
+    try {
+      console.log("📦 Sending job post:", jobPostData);
+
+      const response = await fetch("http://localhost:9999/api/job/create", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(jobPostData),
+      });
+
+      console.log("📥 Raw response:", response);
+
+      if (!response.ok) {
+        const contentType = response.headers.get("content-type");
+
+        if (contentType && contentType.includes("application/json")) {
+          const result = await response.json();
+          console.error("❌ API Error JSON:", result);
+          throw new Error(result.message || "Failed to submit job post");
+        } else {
+          const htmlError = await response.text();
+          console.error("❌ API Error HTML:", htmlError);
+          throw new Error("Unexpected error (HTML response)");
+        }
+      }
+
+      const result = await response.json();
+      console.log("✅ Job post successful:", result);
+      localStorage.removeItem("jobPostFormData");
+      navigate("/success");
+    } catch (error) {
+      console.error("❌ Submission Error:", error);
+      showAlert(`Error: ${error.message}`, "error");
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">

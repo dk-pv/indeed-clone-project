@@ -33,6 +33,7 @@ export const createJob = asyncHandler(async (req, res) => {
 
     job: {
       title: job.title,
+      field:companyProfile.field,
       description: job.description,
       location: job.location,
     },

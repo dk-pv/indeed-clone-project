@@ -31,7 +31,14 @@ const jobSchema = new mongoose.Schema({
 
   job: {
     title: { type: String, required: true },
+    
+    field: {
+      type: String,
+      required: true,
+    },
+
     description: { type: String, required: true },
+
     location: {
       city: String,
       area: String,

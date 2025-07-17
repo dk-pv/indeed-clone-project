@@ -2,7 +2,7 @@ import Company from "../models/companyModel.js";
 import asyncHandler from "express-async-handler";
 
 
-// ✅ Get current user's company profile
+// Get current user's company profile
 export const getCompanyProfile = async (req, res) => {
   const company = await Company.findOne({ user: req.user._id });
   if (!company) {
@@ -14,7 +14,7 @@ export const getCompanyProfile = async (req, res) => {
 
 
 
-// ✅ Create or update company profile
+// Create or update company profile
 export const createOrUpdateCompanyProfile = async (req, res) => {
   const { name, strength, location, email, field } = req.body;
 

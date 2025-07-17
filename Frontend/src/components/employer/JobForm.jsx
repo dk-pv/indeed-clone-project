@@ -27,9 +27,8 @@ export default function JobForm({
         throw new Error("City is required");
       }
       if (!data.requiredSkills?.trim()) {
-  throw new Error("Required skills are missing");
-}
-
+        throw new Error("Required skills are missing");
+      }
 
       await onSubmit(data);
     } catch (error) {
@@ -105,6 +104,23 @@ export default function JobForm({
                   {errors.jobTitle.message}
                 </p>
               </div>
+            )}
+          </div>
+
+          <div className="space-y-2">
+            <label className="block text-sm font-medium text-gray-700">
+              Company Field <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="text"
+              readOnly
+              {...register("field", { required: "Company field is required" })}
+              className="w-full px-4 py-3 border-2 rounded-xl bg-gray-100 text-gray-700"
+            />
+            {errors.field && (
+              <p className="text-red-600 text-sm mt-1">
+                {errors.field.message}
+              </p>
             )}
           </div>
 
