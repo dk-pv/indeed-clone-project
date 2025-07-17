@@ -63,17 +63,47 @@ export const createJob = asyncHandler(async (req, res) => {
   });
 });
 
+
+
+
+// export const getAllJobs = asyncHandler(async (req, res) => {
+//   const jobs = await Job.find({ status: "published", isDeleted: false })
+//     .populate("employer", "name email companyName")
+//     .sort("-createdAt");
+
+//   res.status(200).json({
+//     success: true,
+//     count: jobs.length,
+//     data: jobs,
+//   });
+// });
+
 export const getAllJobs = asyncHandler(async (req, res) => {
+  const page = parseInt(req.query.page) || 1;
+  const limit = 10;
+  const skip = (page - 1) * limit;
+
   const jobs = await Job.find({ status: "published", isDeleted: false })
     .populate("employer", "name email companyName")
-    .sort("-createdAt");
+    .sort("-createdAt")
+    .skip(skip)
+    .limit(limit);
+
+  const total = await Job.countDocuments({ status: "published", isDeleted: false });
 
   res.status(200).json({
     success: true,
-    count: jobs.length,
+    total,
+    page,
+    pages: Math.ceil(total / limit),
     data: jobs,
   });
 });
+
+
+
+
+
 
 export const getEmployerJobs = asyncHandler(async (req, res) => {
   const jobs = await Job.find({

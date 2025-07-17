@@ -169,7 +169,7 @@
 
 //   const fetchAllProfiles = async () => {
 //     try {
-//       const response = await axiosInstance.get("/profile/all");
+//       const response = await axiosInstance.get("/profile/all-profiles");
 
 //       console.log("Fetched profiles from API:", response.data);
 
@@ -276,7 +276,7 @@
 
 //   const fetchAllJobs = async () => {
 //     try {
-//       const response = await axios.get(`${API_BASE}/job/all`);
+//       const response = await axios.get(`${API_BASE}/job/all-jobs`);
 //       if (response.data.success && response.data.data) {
 //         setJobList(response.data.data);
 //         // Auto-select first job if available and user is logged in
@@ -340,6 +340,31 @@
 //     }
 //   };
 
+//   const handleShareJob = async (jobId) => {
+//     if (!jobId) return;
+
+//     const shareUrl = `${window.location.origin}/job/${jobId}`;
+//     const shareData = {
+//       title: selectedJobDetails?.job?.title || "Job Opportunity",
+//       text: `Check out this job: ${selectedJobDetails?.job?.title} at ${selectedJobDetails?.company?.name}`,
+//       url: shareUrl,
+//     };
+
+//     try {
+//       if (navigator.share) {
+//         // Use Web Share API if available
+//         await navigator.share(shareData);
+//       } else {
+//         // Fallback: Copy URL to clipboard
+//         await navigator.clipboard.writeText(shareUrl);
+//         alert("🔗 Job link copied to clipboard!");
+//       }
+//     } catch (err) {
+//       console.error("⚠️ Failed to share job:", err);
+//       alert("⚠️ Failed to share job. Please try again.");
+//     }
+//   };
+
 //   // Handle key press
 //   const handleKeyPress = (e) => {
 //     if (e.key === "Enter") {
@@ -374,86 +399,88 @@
 
 //       {/* Main Content */}
 //       <div className="w-full max-w-6xl mx-auto px-4 py-8 flex-grow">
-//         {/* Search Bar */}
-//         <div className="bg-white rounded-lg shadow-lg border border-gray-200 overflow-visible mb-8 relative">
-//           <div className="flex flex-col md:flex-row">
-//             {/* Job Title Input */}
-//             <div className="flex-1 relative">
-//               <div className="flex items-center px-4 py-4 border-b md:border-b-0 md:border-r border-gray-200">
-//                 <Search className="w-5 h-5 text-gray-400 mr-3 flex-shrink-0" />
-//                 <input
-//                   type="text"
-//                   value={jobQuery}
-//                   onChange={(e) => setJobQuery(e.target.value)}
-//                   placeholder="Job title, keywords, or company"
-//                   onKeyPress={handleKeyPress}
-//                   className="w-full text-gray-700 placeholder-gray-500 bg-transparent border-none outline-none text-base"
-//                 />
-//               </div>
-//               {/* Job Suggestions Dropdown */}
-//               {jobSuggestions.length > 0 && (
-//                 <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 shadow-xl z-[100] max-h-64 overflow-y-auto rounded-b-md">
-//                   {jobSuggestions.map((item, idx) => (
-//                     <div
-//                       key={idx}
-//                       onClick={() => {
-//                         setJobQuery(item);
-//                         setJobSuggestions([]);
-//                       }}
-//                       className="flex items-center px-4 py-3 hover:bg-gray-50 cursor-pointer border-b border-gray-100 last:border-b-0"
-//                     >
-//                       <Search className="w-4 h-4 text-gray-400 mr-3 flex-shrink-0" />
-//                       <span className="text-gray-700 text-sm">{item}</span>
-//                     </div>
-//                   ))}
+//         {/* Search Bar - Only for logged-in non-employer users */}
+//         {isLoggedIn && userRole !== "employer" && (
+//           <div className="bg-white rounded-lg shadow-lg border border-gray-200 overflow-visible mb-8 relative">
+//             <div className="flex flex-col md:flex-row">
+//               {/* Job Title Input */}
+//               <div className="flex-1 relative">
+//                 <div className="flex items-center px-4 py-4 border-b md:border-b-0 md:border-r border-gray-200">
+//                   <Search className="w-5 h-5 text-gray-400 mr-3 flex-shrink-0" />
+//                   <input
+//                     type="text"
+//                     value={jobQuery}
+//                     onChange={(e) => setJobQuery(e.target.value)}
+//                     placeholder="Job title, keywords, or company"
+//                     onKeyPress={handleKeyPress}
+//                     className="w-full text-gray-700 placeholder-gray-500 bg-transparent border-none outline-none text-base"
+//                   />
 //                 </div>
-//               )}
-//             </div>
-
-//             {/* Location Input */}
-//             <div className="flex-1 relative">
-//               <div className="flex items-center px-4 py-4 border-b md:border-b-0 md:border-r border-gray-200">
-//                 <MapPin className="w-5 h-5 text-gray-400 mr-3 flex-shrink-0" />
-//                 <input
-//                   type="text"
-//                   value={locationQuery}
-//                   onChange={(e) => setLocationQuery(e.target.value)}
-//                   placeholder="City or location"
-//                   onKeyPress={handleKeyPress}
-//                   className="w-full text-gray-700 placeholder-gray-500 bg-transparent border-none outline-none text-base"
-//                 />
+//                 {/* Job Suggestions Dropdown */}
+//                 {jobSuggestions.length > 0 && (
+//                   <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 shadow-xl z-[100] max-h-64 overflow-y-auto rounded-b-md">
+//                     {jobSuggestions.map((item, idx) => (
+//                       <div
+//                         key={idx}
+//                         onClick={() => {
+//                           setJobQuery(item);
+//                           setJobSuggestions([]);
+//                         }}
+//                         className="flex items-center px-4 py-3 hover:bg-gray-50 cursor-pointer border-b border-gray-100 last:border-b-0"
+//                       >
+//                         <Search className="w-4 h-4 text-gray-400 mr-3 flex-shrink-0" />
+//                         <span className="text-gray-700 text-sm">{item}</span>
+//                       </div>
+//                     ))}
+//                   </div>
+//                 )}
 //               </div>
-//               {/* Location Suggestions Dropdown */}
-//               {locationSuggestions.length > 0 && (
-//                 <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 shadow-xl z-[100] max-h-64 overflow-y-auto rounded-b-md">
-//                   {locationSuggestions.map((city, idx) => (
-//                     <div
-//                       key={idx}
-//                       onClick={() => {
-//                         setLocationQuery(city);
-//                         setLocationSuggestions([]);
-//                       }}
-//                       className="flex items-center px-4 py-3 hover:bg-gray-50 cursor-pointer border-b border-gray-100 last:border-b-0"
-//                     >
-//                       <MapPin className="w-4 h-4 text-gray-400 mr-3 flex-shrink-0" />
-//                       <span className="text-gray-700 text-sm">{city}</span>
-//                     </div>
-//                   ))}
-//                 </div>
-//               )}
-//             </div>
 
-//             {/* Search Button */}
-//             <div className="flex-shrink-0">
-//               <button
-//                 onClick={handleSearch}
-//                 className="w-full md:w-auto bg-blue-600 hover:bg-blue-700 text-white font-semibold px-8 py-4 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-//               >
-//                 Find jobs
-//               </button>
+//               {/* Location Input */}
+//               <div className="flex-1 relative">
+//                 <div className="flex items-center px-4 py-4 border-b md:border-b-0 md:border-r border-gray-200">
+//                   <MapPin className="w-5 h-5 text-gray-400 mr-3 flex-shrink-0" />
+//                   <input
+//                     type="text"
+//                     value={locationQuery}
+//                     onChange={(e) => setLocationQuery(e.target.value)}
+//                     placeholder="City or location"
+//                     onKeyPress={handleKeyPress}
+//                     className="w-full text-gray-700 placeholder-gray-500 bg-transparent border-none outline-none text-base"
+//                   />
+//                 </div>
+//                 {/* Location Suggestions Dropdown */}
+//                 {locationSuggestions.length > 0 && (
+//                   <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 shadow-xl z-[100] max-h-64 overflow-y-auto rounded-b-md">
+//                     {locationSuggestions.map((city, idx) => (
+//                       <div
+//                         key={idx}
+//                         onClick={() => {
+//                           setLocationQuery(city);
+//                           setLocationSuggestions([]);
+//                         }}
+//                         className="flex items-center px-4 py-3 hover:bg-gray-50 cursor-pointer border-b border-gray-100 last:border-b-0"
+//                       >
+//                         <MapPin className="w-4 h-4 text-gray-400 mr-3 flex-shrink-0" />
+//                         <span className="text-gray-700 text-sm">{city}</span>
+//                       </div>
+//                     ))}
+//                   </div>
+//                 )}
+//               </div>
+
+//               {/* Search Button */}
+//               <div className="flex-shrink-0">
+//                 <button
+//                   onClick={handleSearch}
+//                   className="w-full md:w-auto bg-blue-600 hover:bg-blue-700 text-white font-semibold px-8 py-4 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+//                 >
+//                   Find jobs
+//                 </button>
+//               </div>
 //             </div>
 //           </div>
-//         </div>
+//         )}
 
 //         {/* Welcome Page for Non-Logged In Users */}
 //         {!isLoggedIn && (
@@ -764,7 +791,10 @@
 //                           }`}
 //                         />
 //                       </button>
-//                       <button className="border border-gray-300 hover:border-gray-400 text-gray-700 font-semibold px-4 py-2 rounded-lg transition-colors duration-200">
+//                       <button
+//                         onClick={() => handleShareJob(selectedJobDetails._id)}
+//                         className="border border-gray-300 hover:border-gray-400 text-gray-700 font-semibold px-4 py-2 rounded-lg transition-colors duration-200"
+//                       >
 //                         <Share2 className="w-4 h-4" />
 //                       </button>
 
@@ -971,6 +1001,9 @@
 
 // export default FirstPage;
 
+
+
+
 import { useState, useEffect, useContext } from "react";
 import axios from "axios";
 import {
@@ -989,7 +1022,6 @@ import FirstFooter from "../components/FirstFooter";
 import { AuthContext } from "../context/AuthContext";
 import axiosInstance from "../../utils/axiosInstance";
 import { useNavigate } from "react-router-dom";
-
 import ConfirmApplyModal from "../components/common/ConfirmApplyModal";
 
 // API endpoints
@@ -1006,6 +1038,9 @@ const FirstPage = () => {
   const [selectedJob, setSelectedJob] = useState(null);
   const [selectedJobDetails, setSelectedJobDetails] = useState(null);
   const [loadingJobDetails, setLoadingJobDetails] = useState(false);
+  // Pagination for jobs
+  const [jobPage, setJobPage] = useState(1);
+  const [jobTotalPages, setJobTotalPages] = useState(1);
 
   // Auth context
   const { isLoggedIn, setIsLoggedIn } = useContext(AuthContext);
@@ -1015,12 +1050,13 @@ const FirstPage = () => {
 
   const [userRole, setUserRole] = useState(null);
   const [profileList, setProfileList] = useState([]);
+  // Pagination for profiles
+  const [profilePage, setProfilePage] = useState(1);
+  const [profileTotalPages, setProfileTotalPages] = useState(1);
 
   const [appliedJobIds, setAppliedJobIds] = useState([]);
-
   const [showApplyModal, setShowApplyModal] = useState(false);
   const [selectedJobIdToApply, setSelectedJobIdToApply] = useState(null);
-
   const [savedJobIds, setSavedJobIds] = useState([]);
 
   const navigate = useNavigate();
@@ -1115,7 +1151,7 @@ const FirstPage = () => {
       try {
         const user = JSON.parse(storedUser);
         setIsLoggedIn(true);
-        setUserRole(user?.role); // 👈 set user role
+        setUserRole(user?.role);
       } catch (error) {
         localStorage.removeItem("user");
       }
@@ -1129,7 +1165,7 @@ const FirstPage = () => {
         try {
           const user = JSON.parse(storedUser);
           if (user.token) {
-            fetchAllProfiles(user.token);
+            fetchAllProfiles(user.token, profilePage);
           } else {
             console.warn("⚠️ Token missing in stored user.");
           }
@@ -1138,16 +1174,19 @@ const FirstPage = () => {
         }
       }
     }
-  }, [isLoggedIn, userRole]);
+  }, [isLoggedIn, userRole, profilePage]);
 
-  const fetchAllProfiles = async () => {
+  const fetchAllProfiles = async (token, page = 1) => {
     try {
-      const response = await axiosInstance.get("/profile/all-profiles");
+      const response = await axiosInstance.get(`/profile/all-profiles?page=${page}&limit=10`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
 
       console.log("Fetched profiles from API:", response.data);
 
       if (response.data.success) {
         setProfileList(response.data.data);
+        setProfileTotalPages(response.data.pages || 1);
       }
     } catch (error) {
       console.error("Failed to fetch profiles:", error);
@@ -1202,10 +1241,10 @@ const FirstPage = () => {
   };
 
   useEffect(() => {
-    checkAuthStatus(); // 👈 this must set userRole and isLoggedIn
-    fetchAllJobs();
+    checkAuthStatus();
+    fetchAllJobs(jobPage);
     if (isLoggedIn) fetchAppliedJobs();
-  }, []);
+  }, [jobPage]);
 
   useEffect(() => {
     if (isLoggedIn && userRole !== "employer") {
@@ -1226,9 +1265,9 @@ const FirstPage = () => {
 
   useEffect(() => {
     if (jobQuery.trim() === "" && locationQuery.trim() === "") {
-      fetchAllJobs();
+      fetchAllJobs(jobPage);
     }
-  }, [jobQuery, locationQuery]);
+  }, [jobQuery, locationQuery, jobPage]);
 
   const checkAuthStatus = () => {
     const storedUser = localStorage.getItem("user");
@@ -1238,7 +1277,7 @@ const FirstPage = () => {
         setIsLoggedIn(true);
         setUserRole(user?.role);
         if (user?.token && user?.role === "employer") {
-          fetchAllProfiles(user.token); // pass token directly
+          fetchAllProfiles(user.token, profilePage);
         }
       } catch (error) {
         console.error("Failed to parse stored user:", error);
@@ -1247,11 +1286,12 @@ const FirstPage = () => {
     }
   };
 
-  const fetchAllJobs = async () => {
+  const fetchAllJobs = async (page = 1) => {
     try {
-      const response = await axios.get(`${API_BASE}/job/all-jobs`);
+      const response = await axios.get(`${API_BASE}/job/all-jobs?page=${page}&limit=10`);
       if (response.data.success && response.data.data) {
         setJobList(response.data.data);
+        setJobTotalPages(response.data.pages || 1);
         // Auto-select first job if available and user is logged in
         if (response.data.data.length > 0 && isLoggedIn) {
           handleJobClick(response.data.data[0]);
@@ -1281,25 +1321,21 @@ const FirstPage = () => {
     }
   };
 
-  useEffect(() => {
-    checkAuthStatus();
-    fetchAllJobs();
-  }, []);
-
   // Handle search
   const handleSearch = async () => {
     if (!jobQuery.trim() && !locationQuery.trim()) {
-      fetchAllJobs();
+      fetchAllJobs(jobPage);
       return;
     }
 
     try {
       const response = await axios.get(`${API_BASE}/search/search`, {
-        params: { job: jobQuery, location: locationQuery },
+        params: { job: jobQuery, location: locationQuery, page: jobPage, limit: 10 },
       });
 
       if (response.data.success) {
         setJobList(response.data.data);
+        setJobTotalPages(response.data.pages || 1);
         // Auto-select first result if available
         if (response.data.data.length > 0) {
           handleJobClick(response.data.data[0]);
@@ -1341,7 +1377,21 @@ const FirstPage = () => {
   // Handle key press
   const handleKeyPress = (e) => {
     if (e.key === "Enter") {
+      setJobPage(1); // Reset to first page on new search
       handleSearch();
+    }
+  };
+
+  // Pagination Handlers
+  const handleJobPageChange = (newPage) => {
+    if (newPage >= 1 && newPage <= jobTotalPages) {
+      setJobPage(newPage);
+    }
+  };
+
+  const handleProfilePageChange = (newPage) => {
+    if (newPage >= 1 && newPage <= profileTotalPages) {
+      setProfilePage(newPage);
     }
   };
 
@@ -1445,7 +1495,10 @@ const FirstPage = () => {
               {/* Search Button */}
               <div className="flex-shrink-0">
                 <button
-                  onClick={handleSearch}
+                  onClick={() => {
+                    setJobPage(1); // Reset to first page on new search
+                    handleSearch();
+                  }}
                   className="w-full md:w-auto bg-blue-600 hover:bg-blue-700 text-white font-semibold px-8 py-4 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
                 >
                   Find jobs
@@ -1560,6 +1613,47 @@ const FirstPage = () => {
               ) : (
                 <div className="text-center text-gray-500 py-20">
                   No matching profiles found.
+                </div>
+              )}
+
+              {/* Pagination for Profiles */}
+              {filteredProfiles.length > 0 && profileTotalPages > 1 && (
+                <div className="flex justify-center items-center gap-2 mt-4">
+                  <button
+                    onClick={() => handleProfilePageChange(profilePage - 1)}
+                    disabled={profilePage === 1}
+                    className={`px-4 py-2 rounded-md ${
+                      profilePage === 1
+                        ? "bg-gray-200 text-gray-500 cursor-not-allowed"
+                        : "bg-blue-600 text-white hover:bg-blue-700"
+                    }`}
+                  >
+                    Previous
+                  </button>
+                  {[...Array(profileTotalPages).keys()].map((num) => (
+                    <button
+                      key={num + 1}
+                      onClick={() => handleProfilePageChange(num + 1)}
+                      className={`px-4 py-2 rounded-md ${
+                        profilePage === num + 1
+                          ? "bg-blue-600 text-white"
+                          : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                      }`}
+                    >
+                      {num + 1}
+                    </button>
+                  ))}
+                  <button
+                    onClick={() => handleProfilePageChange(profilePage + 1)}
+                    disabled={profilePage === profileTotalPages}
+                    className={`px-4 py-2 rounded-md ${
+                      profilePage === profileTotalPages
+                        ? "bg-gray-200 text-gray-500 cursor-not-allowed"
+                        : "bg-blue-600 text-white hover:bg-blue-700"
+                    }`}
+                  >
+                    Next
+                  </button>
                 </div>
               )}
             </div>
@@ -1700,6 +1794,47 @@ const FirstPage = () => {
               ) : (
                 <div className="text-center text-gray-500 py-20">
                   No job postings found.
+                </div>
+              )}
+
+              {/* Pagination for Jobs */}
+              {jobList.length > 0 && jobTotalPages > 1 && (
+                <div className="flex justify-center items-center gap-2 mt-4">
+                  <button
+                    onClick={() => handleJobPageChange(jobPage - 1)}
+                    disabled={jobPage === 1}
+                    className={`px-4 py-2 rounded-md ${
+                      jobPage === 1
+                        ? "bg-gray-200 text-gray-500 cursor-not-allowed"
+                        : "bg-blue-600 text-white hover:bg-blue-700"
+                    }`}
+                  >
+                    Previous
+                  </button>
+                  {[...Array(jobTotalPages).keys()].map((num) => (
+                    <button
+                      key={num + 1}
+                      onClick={() => handleJobPageChange(num + 1)}
+                      className={`px-4 py-2 rounded-md ${
+                        jobPage === num + 1
+                          ? "bg-blue-600 text-white"
+                          : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                      }`}
+                    >
+                      {num + 1}
+                    </button>
+                  ))}
+                  <button
+                    onClick={() => handleJobPageChange(jobPage + 1)}
+                    disabled={jobPage === jobTotalPages}
+                    className={`px-4 py-2 rounded-md ${
+                      jobPage === jobTotalPages
+                        ? "bg-gray-200 text-gray-500 cursor-not-allowed"
+                        : "bg-blue-600 text-white hover:bg-blue-700"
+                    }`}
+                  >
+                    Next
+                  </button>
                 </div>
               )}
             </div>

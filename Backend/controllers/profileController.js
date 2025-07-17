@@ -88,12 +88,39 @@ export const upsertProfile = async (req, res) => {
 
 
 // GET /api/profiles — only for employers
+// export const getAllProfiles = async (req, res) => {
+//   try {
+//     const profiles = await Profile.find().populate("user", "email role");
+//     res.status(200).json({ success: true, data: profiles });
+//   } catch (error) {
+//     console.error("Error fetching profiles:", error);
+//     res.status(500).json({ success: false, message: "Server error" });
+//   }
+// };
+
 export const getAllProfiles = async (req, res) => {
   try {
-    const profiles = await Profile.find().populate("user", "email role");
-    res.status(200).json({ success: true, data: profiles });
+    const page = parseInt(req.query.page) || 1;
+    const limit = 10;
+    const skip = (page - 1) * limit;
+
+    const profiles = await Profile.find()
+      .populate("user", "email role")
+      .skip(skip)
+      .limit(limit);
+
+    const total = await Profile.countDocuments();
+
+    res.status(200).json({
+      success: true,
+      total,
+      page,
+      pages: Math.ceil(total / limit),
+      data: profiles,
+    });
   } catch (error) {
     console.error("Error fetching profiles:", error);
     res.status(500).json({ success: false, message: "Server error" });
   }
 };
+
