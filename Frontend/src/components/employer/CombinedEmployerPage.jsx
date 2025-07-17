@@ -108,9 +108,9 @@ export default function EmployerPage() {
         const data = await res.json();
 
         if (data.success && data.data) {
-          setValue("companyName", data.data.name); 
-          setValue("email", data.data.email || ""); 
-          setValue("field", data.data.field || ""); 
+          setValue("companyName", data.data.name);
+          setValue("email", data.data.email || "");
+          setValue("field", data.data.field || "");
 
           localStorage.setItem(
             "jobPostFormData",
@@ -118,7 +118,7 @@ export default function EmployerPage() {
               ...formData,
               companyName: data.data.name,
               email: data.data.email || "",
-              field: data.data.field || "", 
+              field: data.data.field || "",
             })
           );
         } else {
@@ -159,7 +159,7 @@ export default function EmployerPage() {
       pincode: "",
       address: "",
       jobDescription: "",
-        field: "",
+      field: "",
 
       // Details
       jobTypes: [],
@@ -286,7 +286,13 @@ export default function EmployerPage() {
         schedules: formData.schedules,
         hiringCount: formData.numberOfPeople,
         timeline: formData.recruitmentTimeline,
-        requiredSkills: formData.requiredSkills,
+        requiredSkills: Array.isArray(formData.requiredSkills)
+          ? formData.requiredSkills
+          : formData.requiredSkills
+              ?.split(",")
+              .map((skill) => skill.trim())
+              .filter(Boolean),
+
         graduateRequired: formData.graduateRequired,
       },
 

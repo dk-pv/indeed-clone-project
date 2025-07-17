@@ -8,7 +8,7 @@ export default function PreviewForm({
   navigate,
 }) {
   console.log("🧩 PreviewForm mounted");
-console.log("handleFinalSubmit:", typeof handleFinalSubmit);
+  console.log("handleFinalSubmit:", typeof handleFinalSubmit);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState(null);
@@ -289,11 +289,19 @@ console.log("handleFinalSubmit:", typeof handleFinalSubmit);
                         <ul className="list-disc list-inside space-y-1">
                           {formData.requiredSkills
                             .split(",")
-                            .map((skill, index) => (
-                              <li key={index} className="text-gray-700 text-sm">
-                                {skill.trim()}
-                              </li>
-                            ))}
+                            .map((skill, index) => {
+                              const trimmedSkill = skill.trim();
+                              return (
+                                trimmedSkill && (
+                                  <li
+                                    key={index}
+                                    className="text-gray-700 text-sm"
+                                  >
+                                    {trimmedSkill}
+                                  </li>
+                                )
+                              );
+                            })}
                         </ul>
                       ) : (
                         <span className="text-gray-500 italic">
