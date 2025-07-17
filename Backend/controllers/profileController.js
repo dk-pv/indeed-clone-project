@@ -6,7 +6,7 @@ export const getAProfile = async (req, res) => {
     if (!profile) {
       return res.status(200).json({
         success: true,
-        data: null, // 👈 Handle this in frontend
+        data: null,
       });
     }
 
@@ -32,7 +32,7 @@ export const upsertProfile = async (req, res) => {
       location,
       education = "[]",
       skills = "",
-      industryPreference, // 👈 new field
+      industryPreference, 
     } = req.body;
 
     education = JSON.parse(education);
@@ -59,7 +59,7 @@ export const upsertProfile = async (req, res) => {
     if (location) completeness += 10;
     if (resumeData) completeness += 25;
     if (skills.length > 0) completeness += 5;
-    if (industryPreference) completeness += 5; // 👈 new field adds to score
+    if (industryPreference) completeness += 5;
 
     const update = {
       user: req.user._id,
@@ -67,7 +67,7 @@ export const upsertProfile = async (req, res) => {
       education,
       skills,
       profileCompleteness: completeness,
-      industryPreference, // 👈 add to update
+      industryPreference, 
     };
 
     if (resumeData) update.resume = resumeData;
@@ -85,18 +85,6 @@ export const upsertProfile = async (req, res) => {
     res.status(500).json({ success: false, message: error.message });
   }
 };
-
-
-// GET /api/profiles — only for employers
-// export const getAllProfiles = async (req, res) => {
-//   try {
-//     const profiles = await Profile.find().populate("user", "email role");
-//     res.status(200).json({ success: true, data: profiles });
-//   } catch (error) {
-//     console.error("Error fetching profiles:", error);
-//     res.status(500).json({ success: false, message: "Server error" });
-//   }
-// };
 
 export const getAllProfiles = async (req, res) => {
   try {
