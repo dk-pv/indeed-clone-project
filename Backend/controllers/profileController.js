@@ -20,6 +20,8 @@ export const getAProfile = async (req, res) => {
   }
 };
 
+// 
+
 export const upsertProfile = async (req, res) => {
   try {
     let {
@@ -30,14 +32,14 @@ export const upsertProfile = async (req, res) => {
       location,
       education = "[]",
       skills = "",
+      industryPreference, // 👈 new field
     } = req.body;
 
-    // 🔥 Parse JSON fields sent from FormData
-    education = JSON.parse(education); // string to array of objects
+    education = JSON.parse(education);
     skills = skills
       .split(",")
       .map((s) => s.trim())
-      .filter(Boolean); // string to array
+      .filter(Boolean);
 
     let resumeData = null;
     if (req.file) {
@@ -56,7 +58,8 @@ export const upsertProfile = async (req, res) => {
     if (phone) completeness += 10;
     if (location) completeness += 10;
     if (resumeData) completeness += 25;
-    if (skills.length > 0) completeness += 10;
+    if (skills.length > 0) completeness += 5;
+    if (industryPreference) completeness += 5; // 👈 new field adds to score
 
     const update = {
       user: req.user._id,
@@ -64,6 +67,7 @@ export const upsertProfile = async (req, res) => {
       education,
       skills,
       profileCompleteness: completeness,
+      industryPreference, // 👈 add to update
     };
 
     if (resumeData) update.resume = resumeData;
@@ -81,6 +85,7 @@ export const upsertProfile = async (req, res) => {
     res.status(500).json({ success: false, message: error.message });
   }
 };
+
 
 // GET /api/profiles — only for employers
 export const getAllProfiles = async (req, res) => {

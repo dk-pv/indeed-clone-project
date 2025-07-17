@@ -24,7 +24,7 @@ const profileSchema = new mongoose.Schema(
   {
     user: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "User", // You already have this
+      ref: "User",
       required: true,
       unique: true,
     },
@@ -42,6 +42,23 @@ const profileSchema = new mongoose.Schema(
     profileCompleteness: {
       type: Number,
       default: 0,
+    },
+    industryPreference: {
+      type: String,
+      enum: [
+        "IT", "Healthcare", "Finance", "Education", "Manufacturing", "Retail",
+        "Construction", "Telecommunication", "Transportation", "Agriculture",
+        "Hospitality", "Media", "Real Estate", "Legal", "Marketing", "Government",
+        "Non-profit", "Automotive", "Aerospace", "Biotechnology", "Pharmaceuticals",
+        "Energy", "Utilities", "Mining", "FMCG (Fast-moving consumer goods)", 
+        "E-commerce", "Logistics", "Food & Beverage", "Entertainment", "Sports",
+        "Fashion", "Cybersecurity", "Robotics", "EdTech", "FinTech", "HealthTech",
+        "AgriTech", "AI/ML", "Blockchain", "Game Development", "Design & Creative",
+        "Consulting", "HR & Staffing", "Research & Development", "Marine", "Insurance",
+        "Printing & Publishing", "Event Management", "Recycling & Waste Management",
+        "Other",
+      ],
+      required: true,
     },
   },
   { timestamps: true }
