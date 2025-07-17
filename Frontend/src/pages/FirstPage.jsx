@@ -16,7 +16,6 @@
 // import { AuthContext } from "../context/AuthContext";
 // import axiosInstance from "../../utils/axiosInstance";
 // import { useNavigate } from "react-router-dom";
-
 // import ConfirmApplyModal from "../components/common/ConfirmApplyModal";
 
 // // API endpoints
@@ -33,6 +32,9 @@
 //   const [selectedJob, setSelectedJob] = useState(null);
 //   const [selectedJobDetails, setSelectedJobDetails] = useState(null);
 //   const [loadingJobDetails, setLoadingJobDetails] = useState(false);
+//   // Pagination for jobs
+//   const [jobPage, setJobPage] = useState(1);
+//   const [jobTotalPages, setJobTotalPages] = useState(1);
 
 //   // Auth context
 //   const { isLoggedIn, setIsLoggedIn } = useContext(AuthContext);
@@ -42,12 +44,13 @@
 
 //   const [userRole, setUserRole] = useState(null);
 //   const [profileList, setProfileList] = useState([]);
+//   // Pagination for profiles
+//   const [profilePage, setProfilePage] = useState(1);
+//   const [profileTotalPages, setProfileTotalPages] = useState(1);
 
 //   const [appliedJobIds, setAppliedJobIds] = useState([]);
-
 //   const [showApplyModal, setShowApplyModal] = useState(false);
 //   const [selectedJobIdToApply, setSelectedJobIdToApply] = useState(null);
-
 //   const [savedJobIds, setSavedJobIds] = useState([]);
 
 //   const navigate = useNavigate();
@@ -142,7 +145,7 @@
 //       try {
 //         const user = JSON.parse(storedUser);
 //         setIsLoggedIn(true);
-//         setUserRole(user?.role); // 👈 set user role
+//         setUserRole(user?.role);
 //       } catch (error) {
 //         localStorage.removeItem("user");
 //       }
@@ -156,7 +159,7 @@
 //         try {
 //           const user = JSON.parse(storedUser);
 //           if (user.token) {
-//             fetchAllProfiles(user.token);
+//             fetchAllProfiles(user.token, profilePage);
 //           } else {
 //             console.warn("⚠️ Token missing in stored user.");
 //           }
@@ -165,16 +168,19 @@
 //         }
 //       }
 //     }
-//   }, [isLoggedIn, userRole]);
+//   }, [isLoggedIn, userRole, profilePage]);
 
-//   const fetchAllProfiles = async () => {
+//   const fetchAllProfiles = async (token, page = 1) => {
 //     try {
-//       const response = await axiosInstance.get("/profile/all-profiles");
+//       const response = await axiosInstance.get(`/profile/all-profiles?page=${page}&limit=10`, {
+//         headers: { Authorization: `Bearer ${token}` },
+//       });
 
 //       console.log("Fetched profiles from API:", response.data);
 
 //       if (response.data.success) {
 //         setProfileList(response.data.data);
+//         setProfileTotalPages(response.data.pages || 1);
 //       }
 //     } catch (error) {
 //       console.error("Failed to fetch profiles:", error);
@@ -229,10 +235,10 @@
 //   };
 
 //   useEffect(() => {
-//     checkAuthStatus(); // 👈 this must set userRole and isLoggedIn
-//     fetchAllJobs();
+//     checkAuthStatus();
+//     fetchAllJobs(jobPage);
 //     if (isLoggedIn) fetchAppliedJobs();
-//   }, []);
+//   }, [jobPage]);
 
 //   useEffect(() => {
 //     if (isLoggedIn && userRole !== "employer") {
@@ -253,9 +259,9 @@
 
 //   useEffect(() => {
 //     if (jobQuery.trim() === "" && locationQuery.trim() === "") {
-//       fetchAllJobs();
+//       fetchAllJobs(jobPage);
 //     }
-//   }, [jobQuery, locationQuery]);
+//   }, [jobQuery, locationQuery, jobPage]);
 
 //   const checkAuthStatus = () => {
 //     const storedUser = localStorage.getItem("user");
@@ -265,7 +271,7 @@
 //         setIsLoggedIn(true);
 //         setUserRole(user?.role);
 //         if (user?.token && user?.role === "employer") {
-//           fetchAllProfiles(user.token); // pass token directly
+//           fetchAllProfiles(user.token, profilePage);
 //         }
 //       } catch (error) {
 //         console.error("Failed to parse stored user:", error);
@@ -274,11 +280,12 @@
 //     }
 //   };
 
-//   const fetchAllJobs = async () => {
+//   const fetchAllJobs = async (page = 1) => {
 //     try {
-//       const response = await axios.get(`${API_BASE}/job/all-jobs`);
+//       const response = await axios.get(`${API_BASE}/job/all-jobs?page=${page}&limit=10`);
 //       if (response.data.success && response.data.data) {
 //         setJobList(response.data.data);
+//         setJobTotalPages(response.data.pages || 1);
 //         // Auto-select first job if available and user is logged in
 //         if (response.data.data.length > 0 && isLoggedIn) {
 //           handleJobClick(response.data.data[0]);
@@ -308,25 +315,21 @@
 //     }
 //   };
 
-//   useEffect(() => {
-//     checkAuthStatus();
-//     fetchAllJobs();
-//   }, []);
-
 //   // Handle search
 //   const handleSearch = async () => {
 //     if (!jobQuery.trim() && !locationQuery.trim()) {
-//       fetchAllJobs();
+//       fetchAllJobs(jobPage);
 //       return;
 //     }
 
 //     try {
 //       const response = await axios.get(`${API_BASE}/search/search`, {
-//         params: { job: jobQuery, location: locationQuery },
+//         params: { job: jobQuery, location: locationQuery, page: jobPage, limit: 10 },
 //       });
 
 //       if (response.data.success) {
 //         setJobList(response.data.data);
+//         setJobTotalPages(response.data.pages || 1);
 //         // Auto-select first result if available
 //         if (response.data.data.length > 0) {
 //           handleJobClick(response.data.data[0]);
@@ -343,7 +346,7 @@
 //   const handleShareJob = async (jobId) => {
 //     if (!jobId) return;
 
-//     const shareUrl = `${window.location.origin}/job/${jobId}`;
+//     const shareUrl = `${window.location.origin}/job-details/${jobId}`;
 //     const shareData = {
 //       title: selectedJobDetails?.job?.title || "Job Opportunity",
 //       text: `Check out this job: ${selectedJobDetails?.job?.title} at ${selectedJobDetails?.company?.name}`,
@@ -368,7 +371,21 @@
 //   // Handle key press
 //   const handleKeyPress = (e) => {
 //     if (e.key === "Enter") {
+//       setJobPage(1); // Reset to first page on new search
 //       handleSearch();
+//     }
+//   };
+
+//   // Pagination Handlers
+//   const handleJobPageChange = (newPage) => {
+//     if (newPage >= 1 && newPage <= jobTotalPages) {
+//       setJobPage(newPage);
+//     }
+//   };
+
+//   const handleProfilePageChange = (newPage) => {
+//     if (newPage >= 1 && newPage <= profileTotalPages) {
+//       setProfilePage(newPage);
 //     }
 //   };
 
@@ -472,7 +489,10 @@
 //               {/* Search Button */}
 //               <div className="flex-shrink-0">
 //                 <button
-//                   onClick={handleSearch}
+//                   onClick={() => {
+//                     setJobPage(1); // Reset to first page on new search
+//                     handleSearch();
+//                   }}
 //                   className="w-full md:w-auto bg-blue-600 hover:bg-blue-700 text-white font-semibold px-8 py-4 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
 //                 >
 //                   Find jobs
@@ -587,6 +607,47 @@
 //               ) : (
 //                 <div className="text-center text-gray-500 py-20">
 //                   No matching profiles found.
+//                 </div>
+//               )}
+
+//               {/* Pagination for Profiles */}
+//               {filteredProfiles.length > 0 && profileTotalPages > 1 && (
+//                 <div className="flex justify-center items-center gap-2 mt-4">
+//                   <button
+//                     onClick={() => handleProfilePageChange(profilePage - 1)}
+//                     disabled={profilePage === 1}
+//                     className={`px-4 py-2 rounded-md ${
+//                       profilePage === 1
+//                         ? "bg-gray-200 text-gray-500 cursor-not-allowed"
+//                         : "bg-blue-600 text-white hover:bg-blue-700"
+//                     }`}
+//                   >
+//                     Previous
+//                   </button>
+//                   {[...Array(profileTotalPages).keys()].map((num) => (
+//                     <button
+//                       key={num + 1}
+//                       onClick={() => handleProfilePageChange(num + 1)}
+//                       className={`px-4 py-2 rounded-md ${
+//                         profilePage === num + 1
+//                           ? "bg-blue-600 text-white"
+//                           : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+//                       }`}
+//                     >
+//                       {num + 1}
+//                     </button>
+//                   ))}
+//                   <button
+//                     onClick={() => handleProfilePageChange(profilePage + 1)}
+//                     disabled={profilePage === profileTotalPages}
+//                     className={`px-4 py-2 rounded-md ${
+//                       profilePage === profileTotalPages
+//                         ? "bg-gray-200 text-gray-500 cursor-not-allowed"
+//                         : "bg-blue-600 text-white hover:bg-blue-700"
+//                     }`}
+//                   >
+//                     Next
+//                   </button>
 //                 </div>
 //               )}
 //             </div>
@@ -727,6 +788,47 @@
 //               ) : (
 //                 <div className="text-center text-gray-500 py-20">
 //                   No job postings found.
+//                 </div>
+//               )}
+
+//               {/* Pagination for Jobs */}
+//               {jobList.length > 0 && jobTotalPages > 1 && (
+//                 <div className="flex justify-center items-center gap-2 mt-4">
+//                   <button
+//                     onClick={() => handleJobPageChange(jobPage - 1)}
+//                     disabled={jobPage === 1}
+//                     className={`px-4 py-2 rounded-md ${
+//                       jobPage === 1
+//                         ? "bg-gray-200 text-gray-500 cursor-not-allowed"
+//                         : "bg-blue-600 text-white hover:bg-blue-700"
+//                     }`}
+//                   >
+//                     Previous
+//                   </button>
+//                   {[...Array(jobTotalPages).keys()].map((num) => (
+//                     <button
+//                       key={num + 1}
+//                       onClick={() => handleJobPageChange(num + 1)}
+//                       className={`px-4 py-2 rounded-md ${
+//                         jobPage === num + 1
+//                           ? "bg-blue-600 text-white"
+//                           : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+//                       }`}
+//                     >
+//                       {num + 1}
+//                     </button>
+//                   ))}
+//                   <button
+//                     onClick={() => handleJobPageChange(jobPage + 1)}
+//                     disabled={jobPage === jobTotalPages}
+//                     className={`px-4 py-2 rounded-md ${
+//                       jobPage === jobTotalPages
+//                         ? "bg-gray-200 text-gray-500 cursor-not-allowed"
+//                         : "bg-blue-600 text-white hover:bg-blue-700"
+//                     }`}
+//                   >
+//                     Next
+//                   </button>
 //                 </div>
 //               )}
 //             </div>
@@ -917,6 +1019,7 @@
 //                               )
 //                             )}
 //                           </div>
+                          
 //                         </div>
 //                       </div>
 //                     )}
@@ -1001,9 +1104,6 @@
 
 // export default FirstPage;
 
-
-
-
 import { useState, useEffect, useContext } from "react";
 import axios from "axios";
 import {
@@ -1015,6 +1115,7 @@ import {
   Share2,
   User,
   MessageSquare,
+  Briefcase, // Added for Industry Preference
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import mainImg from "../assets/main.png";
@@ -1707,6 +1808,15 @@ const FirstPage = () => {
                             🎓 {edu.degree}, {edu.school} ({edu.graduationYear})
                           </div>
                         ))}
+                      </div>
+                    )}
+                    {selectedJob.industryPreference && (
+                      <div className="mb-6">
+                        <h3 className="text-lg font-semibold text-gray-800 mb-3 flex items-center">
+                          <Briefcase className="w-5 h-5 mr-2 text-blue-600" />
+                          Industry Preference
+                        </h3>
+                        <p className="text-gray-600">{selectedJob.industryPreference}</p>
                       </div>
                     )}
                     <br />
