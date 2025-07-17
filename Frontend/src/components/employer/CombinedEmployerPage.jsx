@@ -301,7 +301,7 @@ export default function EmployerPage() {
     contactCandidates: formData.contactCandidates,
   },
 
-  status: "published", // optional, based on your backend
+  status: "published", // optional, based o
 };
 
 
