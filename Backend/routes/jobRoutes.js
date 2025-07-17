@@ -36,7 +36,7 @@ router.get("/applied", verifyToken, getAppliedJobs);
 
 router.post("/save/:jobId", verifyToken, saveJob);
 router.delete("/saved/:jobId", verifyToken, removeSavedJob);
-router.get("/saved", verifyToken, getSavedJobs); // ✅ Correct path
+router.get("/saved", verifyToken, getSavedJobs); 
 
 // Keep this LAST to avoid route conflicts
 router.get("/:id", getAJob);

@@ -19,6 +19,8 @@ import ChatPageEmployer from "./pages/ChatPageEmployer";
 import EmployerPostViewApplicants from "./pages/EmployerPostViewApplicants";
 import SavePagejobpost from "./pages/SavePagejobpost";
 import CompanyProfileForm from "./pages/CompanyProfileForm";
+import JobDetailsPage from "./pages/JobDetailsPage";
+
 
 const router = createBrowserRouter([
   {
@@ -45,6 +47,10 @@ const router = createBrowserRouter([
       {
         path: "/profile",
         element: <JSProfile />,
+      },
+      {
+        path: "/job-details/:jobId",
+        element: <JobDetailsPage />,
       },
     ],
   },

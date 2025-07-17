@@ -1352,7 +1352,7 @@ const FirstPage = () => {
   const handleShareJob = async (jobId) => {
     if (!jobId) return;
 
-    const shareUrl = `${window.location.origin}/job/${jobId}`;
+    const shareUrl = `${window.location.origin}/job-details/${jobId}`;
     const shareData = {
       title: selectedJobDetails?.job?.title || "Job Opportunity",
       text: `Check out this job: ${selectedJobDetails?.job?.title} at ${selectedJobDetails?.company?.name}`,

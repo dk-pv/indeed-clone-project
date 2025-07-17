@@ -41,9 +41,10 @@ const SavePagejobpost = () => {
     }
   };
 
-  const handleJobClick = (jobId) => {
-    navigate("/", { state: { selectedJobId: jobId } });
-  };
+const handleJobClick = (jobId) => {
+  navigate(`/job-details/${jobId}`);
+};
+
 
   return (
     <div className="min-h-screen bg-gray-50 py-6 px-4">
