@@ -36,6 +36,6 @@ const router = express.Router();
 
 router.get("/", verifyToken, getAProfile);
 router.post("/", verifyToken, upload.single("resume"), upsertProfile);
-router.get("/all", verifyToken,  getAllProfiles); 
+router.get("/all-profiles", verifyToken,  getAllProfiles); 
 
 export default router;

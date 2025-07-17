@@ -1142,7 +1142,7 @@ const FirstPage = () => {
 
   const fetchAllProfiles = async () => {
     try {
-      const response = await axiosInstance.get("/profile/all");
+      const response = await axiosInstance.get("/profile/all-profiles");
 
       console.log("Fetched profiles from API:", response.data);
 
@@ -1249,7 +1249,7 @@ const FirstPage = () => {
 
   const fetchAllJobs = async () => {
     try {
-      const response = await axios.get(`${API_BASE}/job/all`);
+      const response = await axios.get(`${API_BASE}/job/all-jobs`);
       if (response.data.success && response.data.data) {
         setJobList(response.data.data);
         // Auto-select first job if available and user is logged in

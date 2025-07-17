@@ -28,7 +28,7 @@ router.put("/update/:id", verifyToken, verifyEmployer, updateJob);
 router.delete("/delete/:id", verifyToken, verifyEmployer, deleteJob);
 
 // Public or user routes
-router.get("/all", getAllJobs);
+router.get("/all-jobs", getAllJobs);
 router.post("/apply/:jobId", verifyToken, applyJob);
 router.get("/applicants/:jobId", verifyToken, getApplicantsByJob);
 router.put("/update-status/:applicationId", verifyToken, updateApplicationStatus);
