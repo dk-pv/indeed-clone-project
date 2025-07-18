@@ -16,6 +16,7 @@ export const searchJobs = async (req, res) => {
   }
 };
 
+
 export const getJobTitleSuggestions = async (req, res) => {
   const { query } = req.query;
 

@@ -86,6 +86,9 @@ export const upsertProfile = async (req, res) => {
   }
 };
 
+
+
+
 export const getAllProfiles = async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
