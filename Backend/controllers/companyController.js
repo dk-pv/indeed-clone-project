@@ -57,3 +57,27 @@ export const checkCompanyProfileExists = asyncHandler(async (req, res) => {
     return res.json({ exists: false });
   }
 });
+
+
+
+
+
+// controllers/companyController.js
+
+export const getCompanyProfileByUserId = async (req, res) => {
+  try {
+    const userId = req.params.userId;
+    const company = await Company.findOne({ user: userId }).populate("user", "email");
+
+    if (!company) {
+      return res.status(404).json({ success: false, message: "Company not found" });
+    }
+
+    res.status(200).json({ success: true, data: company });
+  } catch (error) {
+    console.error("Company fetch error:", error);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+};
+
+

@@ -20,7 +20,7 @@ import EmployerPostViewApplicants from "./pages/EmployerPostViewApplicants";
 import SavePagejobpost from "./pages/SavePagejobpost";
 import CompanyProfileForm from "./pages/CompanyProfileForm";
 import JobDetailsPage from "./pages/JobDetailsPage";
-
+import CompanyProfilePage from "./pages/CompanyProfilePage";
 
 const router = createBrowserRouter([
   {
@@ -51,6 +51,10 @@ const router = createBrowserRouter([
       {
         path: "/job-details/:jobId",
         element: <JobDetailsPage />,
+      },
+      {
+        path: "/company/user/:userId",
+        element: <CompanyProfilePage />,
       },
     ],
   },
