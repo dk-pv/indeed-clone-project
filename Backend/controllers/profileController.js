@@ -1,4 +1,6 @@
 import Profile from "../models/profileModel.js";
+import cloudinary from "../config/cloudinary.js";
+import streamifier from "streamifier";
 
 export const getAProfile = async (req, res) => {
   try {
@@ -20,8 +22,6 @@ export const getAProfile = async (req, res) => {
   }
 };
 
-// 
-
 export const upsertProfile = async (req, res) => {
   try {
     let {
@@ -32,7 +32,7 @@ export const upsertProfile = async (req, res) => {
       location,
       education = "[]",
       skills = "",
-      industryPreference, 
+      industryPreference,
     } = req.body;
 
     education = JSON.parse(education);
@@ -43,9 +43,31 @@ export const upsertProfile = async (req, res) => {
 
     let resumeData = null;
     if (req.file) {
+      const streamUpload = (buffer) => {
+        return new Promise((resolve, reject) => {
+          const stream = cloudinary.uploader.upload_stream(
+            {
+              resource_type: "raw",
+              folder: "resumes",
+              public_id: `resume_${req.user._id}_${Date.now()}`, // Unique file name
+            },
+            (error, result) => {
+              if (result) {
+                resolve(result);
+              } else {
+                reject(error);
+              }
+            }
+          );
+          streamifier.createReadStream(buffer).pipe(stream);
+        });
+      };
+
+      const result = await streamUpload(req.file.buffer);
       resumeData = {
         originalName: req.file.originalname,
-        filename: req.file.filename,
+        filename: result.secure_url,
+        previewUrl: result.secure_url, // Same as filename for viewing
         uploadDate: new Date(),
       };
     }
@@ -67,7 +89,7 @@ export const upsertProfile = async (req, res) => {
       education,
       skills,
       profileCompleteness: completeness,
-      industryPreference, 
+      industryPreference,
     };
 
     if (resumeData) update.resume = resumeData;
@@ -86,9 +108,6 @@ export const upsertProfile = async (req, res) => {
   }
 };
 
-
-
-
 export const getAllProfiles = async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
@@ -98,7 +117,8 @@ export const getAllProfiles = async (req, res) => {
     const profiles = await Profile.find()
       .populate("user", "email role")
       .skip(skip)
-      .limit(limit);
+      .limit(limit)
+      .select("personalInfo resume skills industryPreference profileCompleteness");
 
     const total = await Profile.countDocuments();
 
@@ -114,4 +134,3 @@ export const getAllProfiles = async (req, res) => {
     res.status(500).json({ success: false, message: "Server error" });
   }
 };
-

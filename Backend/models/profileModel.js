@@ -15,6 +15,7 @@ const resumeSchema = new mongoose.Schema(
   {
     originalName: String,
     filename: String,
+    previewUrl: String,
     uploadDate: Date,
   },
   { _id: false }

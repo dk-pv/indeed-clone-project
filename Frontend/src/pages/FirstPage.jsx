@@ -9,7 +9,7 @@ import {
   Share2,
   User,
   MessageSquare,
-  Briefcase, // Added for Industry Preference
+  Briefcase,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import mainImg from "../assets/main.png";
@@ -726,11 +726,13 @@ const FirstPage = () => {
                       </div>
                     )}
                     <br />
-                    {selectedJob.resume?.filename && (
+                    {selectedJob.resume?.previewUrl && (
                       <div className="mt-4">
                         📄 Resume:{" "}
                         <a
-                          href={`http://localhost:9999/uploads/resumes/${selectedJob.resume.filename}`}
+                          href={`https://docs.google.com/viewer?url=${encodeURIComponent(
+                            selectedJob.resume.previewUrl
+                          )}`}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="text-blue-600 underline"
@@ -1061,7 +1063,7 @@ const FirstPage = () => {
                     </div>
 
                     <Link
-                      to={`/company/user/${selectedJobDetails.employer?._id}`} // company._id അല്ല
+                      to={`/company/user/${selectedJobDetails.employer?._id}`}
                       className="text-blue-600 hover:text-blue-800 underline"
                     >
                       View Company Details

@@ -22,6 +22,7 @@ import CompanyProfileForm from "./pages/CompanyProfileForm";
 import JobDetailsPage from "./pages/JobDetailsPage";
 import CompanyProfilePage from "./pages/CompanyProfilePage";
 
+
 const router = createBrowserRouter([
   {
     path: "/",

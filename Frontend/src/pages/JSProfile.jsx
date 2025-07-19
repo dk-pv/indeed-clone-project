@@ -14,9 +14,10 @@ import {
   Phone,
   Mail,
   CheckCircle,
+  FileText,
 } from "lucide-react";
 
-const ProfilePage = () => {
+const JSProfile = () => {
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [editMode, setEditMode] = useState(false);
@@ -24,6 +25,7 @@ const ProfilePage = () => {
   const [showSuccess, setShowSuccess] = useState(false);
   const [saving, setSaving] = useState(false);
   const [resumeFile, setResumeFile] = useState(null);
+  const [uploadError, setUploadError] = useState(null);
   const navigate = useNavigate();
 
   const { register, handleSubmit, formState: { errors } } = useForm({
@@ -33,55 +35,16 @@ const ProfilePage = () => {
   });
 
   const industryOptions = [
-    "IT",
-    "Healthcare",
-    "Finance",
-    "Education",
-    "Manufacturing",
-    "Retail",
-    "Construction",
-    "Telecommunication",
-    "Transportation",
-    "Agriculture",
-    "Hospitality",
-    "Media",
-    "Real Estate",
-    "Legal",
-    "Marketing",
-    "Government",
-    "Non-profit",
-    "Automotive",
-    "Aerospace",
-    "Biotechnology",
-    "Pharmaceuticals",
-    "Energy",
-    "Utilities",
-    "Mining",
-    "FMCG (Fast-moving consumer goods)",
-    "E-commerce",
-    "Logistics",
-    "Food & Beverage",
-    "Entertainment",
-    "Sports",
-    "Fashion",
-    "Cybersecurity",
-    "Robotics",
-    "EdTech",
-    "FinTech",
-    "HealthTech",
-    "AgriTech",
-    "AI/ML",
-    "Blockchain",
-    "Game Development",
-    "Design & Creative",
-    "Consulting",
-    "HR & Staffing",
-    "Research & Development",
-    "Marine",
-    "Insurance",
-    "Printing & Publishing",
-    "Event Management",
-    "Recycling & Waste Management",
+    "IT", "Healthcare", "Finance", "Education", "Manufacturing", "Retail",
+    "Construction", "Telecommunication", "Transportation", "Agriculture",
+    "Hospitality", "Media", "Real Estate", "Legal", "Marketing", "Government",
+    "Non-profit", "Automotive", "Aerospace", "Biotechnology", "Pharmaceuticals",
+    "Energy", "Utilities", "Mining", "FMCG (Fast-moving consumer goods)", 
+    "E-commerce", "Logistics", "Food & Beverage", "Entertainment", "Sports",
+    "Fashion", "Cybersecurity", "Robotics", "EdTech", "FinTech", "HealthTech",
+    "AgriTech", "AI/ML", "Blockchain", "Game Development", "Design & Creative",
+    "Consulting", "HR & Staffing", "Research & Development", "Marine", "Insurance",
+    "Printing & Publishing", "Event Management", "Recycling & Waste Management",
     "Other",
   ];
 
@@ -141,10 +104,12 @@ const ProfilePage = () => {
   const handleEdit = () => {
     setEditMode(true);
     setShowSuccess(false);
+    setUploadError(null);
   };
 
   const handleSave = async () => {
     setSaving(true);
+    setUploadError(null);
     try {
       const form = new FormData();
       form.append("firstName", formData.firstName || "");
@@ -174,11 +139,13 @@ const ProfilePage = () => {
         resume: data.resume,
         industryPreference: data.industryPreference || "",
       });
+      setResumeFile(null);
       setEditMode(false);
       setShowSuccess(true);
       setTimeout(() => setShowSuccess(false), 3000);
     } catch (err) {
       console.error("Error saving profile:", err);
+      setUploadError(err.response?.data?.message || "Failed to upload resume. Please try again.");
     } finally {
       setSaving(false);
     }
@@ -193,22 +160,32 @@ const ProfilePage = () => {
       industryPreference: profile.industryPreference || "",
     });
     setResumeFile(null);
+    setUploadError(null);
     setEditMode(false);
   };
 
-  const handleFileUpload = (event, type) => {
+  const handleFileUpload = (event) => {
     const file = event.target.files[0];
-    if (file && type === "resume") {
-      const resumeData = {
-        filename: file.name,
-        originalName: file.name,
-        uploadDate: new Date().toISOString(),
-      };
+    if (file) {
+      const filetypes = /\.(pdf|doc|docx)$/i;
+      if (!filetypes.test(file.name)) {
+        setUploadError("Only PDF, DOC, or DOCX files are allowed.");
+        return;
+      }
+      if (file.size > 5 * 1024 * 1024) {
+        setUploadError("File size exceeds 5MB limit.");
+        return;
+      }
       setResumeFile(file);
       setFormData({
         ...formData,
-        resume: resumeData,
+        resume: {
+          originalName: file.name,
+          filename: file.name,
+          uploadDate: new Date().toISOString(),
+        },
       });
+      setUploadError(null);
     }
   };
 
@@ -274,6 +251,14 @@ const ProfilePage = () => {
           </div>
         )}
 
+        {/* Upload Error Message */}
+        {uploadError && (
+          <div className="fixed top-4 right-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg shadow-lg flex items-center z-50">
+            <X className="w-5 h-5 mr-2" />
+            <span>{uploadError}</span>
+          </div>
+        )}
+
         {/* Header */}
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
           <div className="flex items-center justify-between">
@@ -326,67 +311,67 @@ const ProfilePage = () => {
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     First Name
+                    <input
+                      type="text"
+                      value={formData.firstName || ""}
+                      onChange={(e) =>
+                        setFormData({ ...formData, firstName: e.target.value })
+                      }
+                      className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    />
                   </label>
-                  <input
-                    type="text"
-                    value={formData.firstName || ""}
-                    onChange={(e) =>
-                      setFormData({ ...formData, firstName: e.target.value })
-                    }
-                    className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Last Name
+                    <input
+                      type="text"
+                      value={formData.lastName || ""}
+                      onChange={(e) =>
+                        setFormData({ ...formData, lastName: e.target.value })
+                      }
+                      className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    />
                   </label>
-                  <input
-                    type="text"
-                    value={formData.lastName || ""}
-                    onChange={(e) =>
-                      setFormData({ ...formData, lastName: e.target.value })
-                    }
-                    className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Email
+                    <input
+                      type="email"
+                      value={formData.email || ""}
+                      onChange={(e) =>
+                        setFormData({ ...formData, email: e.target.value })
+                      }
+                      className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    />
                   </label>
-                  <input
-                    type="email"
-                    value={formData.email || ""}
-                    onChange={(e) =>
-                      setFormData({ ...formData, email: e.target.value })
-                    }
-                    className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Phone
+                    <input
+                      type="text"
+                      value={formData.phone || ""}
+                      onChange={(e) =>
+                        setFormData({ ...formData, phone: e.target.value })
+                      }
+                      className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    />
                   </label>
-                  <input
-                    type="text"
-                    value={formData.phone || ""}
-                    onChange={(e) =>
-                      setFormData({ ...formData, phone: e.target.value })
-                    }
-                    className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  />
                 </div>
                 <div className="md:col-span-2">
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Location
+                    <input
+                      type="text"
+                      value={formData.location || ""}
+                      onChange={(e) =>
+                        setFormData({ ...formData, location: e.target.value })
+                      }
+                      className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    />
                   </label>
-                  <input
-                    type="text"
-                    value={formData.location || ""}
-                    onChange={(e) =>
-                      setFormData({ ...formData, location: e.target.value })
-                    }
-                    className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  />
                 </div>
               </div>
             </div>
@@ -448,25 +433,25 @@ const ProfilePage = () => {
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Preferred Industry
+                  <select
+                    {...register("industryPreference", {
+                      required: "Please select an industry"
+                    })}
+                    className={`w-full p-2 border ${
+                      errors.industryPreference ? "border-red-500" : "border-gray-300"
+                    } rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500`}
+                    onChange={(e) =>
+                      setFormData({ ...formData, industryPreference: e.target.value })
+                    }
+                  >
+                    <option value="">Select an industry</option>
+                    {industryOptions.map((industry, index) => (
+                      <option key={index} value={industry}>
+                        {industry}
+                      </option>
+                    ))}
+                  </select>
                 </label>
-                <select
-                  {...register("industryPreference", {
-                    required: "Please select an industry"
-                  })}
-                  className={`w-full p-2 border ${
-                    errors.industryPreference ? "border-red-500" : "border-gray-300"
-                  } rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500`}
-                  onChange={(e) =>
-                    setFormData({ ...formData, industryPreference: e.target.value })
-                  }
-                >
-                  <option value="">Select an industry</option>
-                  {industryOptions.map((industry, index) => (
-                    <option key={index} value={industry}>
-                      {industry}
-                    </option>
-                  ))}
-                </select>
                 {errors.industryPreference && (
                   <p className="text-red-500 text-sm mt-1">
                     {errors.industryPreference.message}
@@ -505,7 +490,7 @@ const ProfilePage = () => {
               <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
                 <div className="flex items-center">
                   <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center mr-3">
-                    <Upload className="w-5 h-5 text-blue-600" />
+                    <FileText className="w-5 h-5 text-blue-600" />
                   </div>
                   <div>
                     <p className="font-medium text-gray-900">
@@ -523,16 +508,17 @@ const ProfilePage = () => {
                     </p>
                   </div>
                 </div>
-                {!editMode && (
-                  <div className="flex space-x-2">
-                    <button className="px-3 py-1.5 text-sm text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-md transition-colors">
-                      View
-                    </button>
-                    <button className="px-3 py-1.5 text-sm text-red-600 hover:text-red-700 hover:bg-red-50 rounded-md transition-colors">
-                      Delete
-                    </button>
-                  </div>
-                )}
+                <a
+                  href={`https://docs.google.com/viewer?url=${
+                    encodeURIComponent(editMode ? formData.resume?.previewUrl : profile.resume?.previewUrl)
+                  }`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center px-3 py-1.5 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+                >
+                  <FileText className="w-4 h-4 mr-2" />
+                  View Resume
+                </a>
               </div>
             ) : (
               <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
@@ -550,7 +536,7 @@ const ProfilePage = () => {
                   <input
                     type="file"
                     accept=".pdf,.doc,.docx"
-                    onChange={(e) => handleFileUpload(e, "resume")}
+                    onChange={handleFileUpload}
                     className="hidden"
                   />
                   <span className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors cursor-pointer">
@@ -598,75 +584,75 @@ const ProfilePage = () => {
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
                           Degree
+                          <input
+                            type="text"
+                            value={edu.degree}
+                            onChange={(e) =>
+                              updateEducation(index, "degree", e.target.value)
+                            }
+                            className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          />
                         </label>
-                        <input
-                          type="text"
-                          value={edu.degree}
-                          onChange={(e) =>
-                            updateEducation(index, "degree", e.target.value)
-                          }
-                          className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                        />
                       </div>
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
                           School
+                          <input
+                            type="text"
+                            value={edu.school}
+                            onChange={(e) =>
+                              updateEducation(index, "school", e.target.value)
+                            }
+                            className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          />
                         </label>
-                        <input
-                          type="text"
-                          value={edu.school}
-                          onChange={(e) =>
-                            updateEducation(index, "school", e.target.value)
-                          }
-                          className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                        />
                       </div>
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
                           Field of Study
+                          <input
+                            type="text"
+                            value={edu.fieldOfStudy}
+                            onChange={(e) =>
+                              updateEducation(
+                                index,
+                                "fieldOfStudy",
+                                e.target.value
+                              )
+                            }
+                            className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          />
                         </label>
-                        <input
-                          type="text"
-                          value={edu.fieldOfStudy}
-                          onChange={(e) =>
-                            updateEducation(
-                              index,
-                              "fieldOfStudy",
-                              e.target.value
-                            )
-                          }
-                          className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                        />
                       </div>
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
                           Graduation Year
+                          <input
+                            type="text"
+                            value={edu.graduationYear}
+                            onChange={(e) =>
+                              updateEducation(
+                                index,
+                                "graduationYear",
+                                e.target.value
+                              )
+                            }
+                            className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          />
                         </label>
-                        <input
-                          type="text"
-                          value={edu.graduationYear}
-                          onChange={(e) =>
-                            updateEducation(
-                              index,
-                              "graduationYear",
-                              e.target.value
-                            )
-                          }
-                          className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                        />
                       </div>
                       <div className="md:col-span-2">
                         <label className="block text-sm font-medium text-gray-700 mb-2">
                           GPA (Optional)
+                          <input
+                            type="text"
+                            value={edu.gpa}
+                            onChange={(e) =>
+                              updateEducation(index, "gpa", e.target.value)
+                            }
+                            className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          />
                         </label>
-                        <input
-                          type="text"
-                          value={edu.gpa}
-                          onChange={(e) =>
-                            updateEducation(index, "gpa", e.target.value)
-                          }
-                          className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                        />
                       </div>
                     </div>
                     <button
@@ -683,7 +669,7 @@ const ProfilePage = () => {
                 {profile.education.length > 0 ? (
                   profile.education.map((edu, index) => (
                     <div
-                      key={edu.id || edu.id || index}
+                      key={edu.id || index}
                       className="border border-gray-200 rounded-lg p-4 mb-4"
                     >
                       <div className="flex-1">
@@ -735,16 +721,16 @@ const ProfilePage = () => {
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Skills (comma-separated)
+                  <textarea
+                    value={formData.skills || ""}
+                    onChange={(e) =>
+                      setFormData({ ...formData, skills: e.target.value })
+                    }
+                    rows={3}
+                    className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    placeholder="e.g., JavaScript, React, Node.js, Python"
+                  />
                 </label>
-                <textarea
-                  value={formData.skills || ""}
-                  onChange={(e) =>
-                    setFormData({ ...formData, skills: e.target.value })
-                  }
-                  rows={3}
-                  className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  placeholder="e.g., JavaScript, React, Node.js, Python"
-                />
               </div>
             </div>
           ) : (
@@ -794,7 +780,7 @@ const ProfilePage = () => {
                 {saving ? (
                   <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
                 ) : (
-                < Save className="w-4 h-4 mr-2" />
+                  <Save className="w-4 h-4 mr-2" />
                 )}
                 {saving ? "Saving..." : "Save Profile"}
               </button>
@@ -806,4 +792,4 @@ const ProfilePage = () => {
   );
 };
 
-export default ProfilePage;
+export default JSProfile;
