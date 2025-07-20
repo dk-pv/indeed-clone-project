@@ -10,7 +10,7 @@ export const setupSocket = (server) => {
   });
 
   io.on("connection", (socket) => {
-    console.log("🔌 New client connected:", socket.id);
+    console.log("New client connected:", socket.id);
 
     socket.on("join", ({ room }) => {
       socket.join(room);
@@ -19,11 +19,11 @@ export const setupSocket = (server) => {
 
     socket.on("sendMessage", (data) => {
       io.to(data.room).emit("receiveMessage", data);
-      io.emit("newMessage"); // Notify inbox refresh
+      io.emit("newMessage");
     });
 
     socket.on("disconnect", () => {
-      console.log("⚡ Client disconnected:", socket.id);
+      console.log(" Client disconnected:", socket.id);
     });
   });
 };
