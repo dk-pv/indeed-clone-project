@@ -1,6 +1,8 @@
 import Profile from "../models/profileModel.js";
 import cloudinary from "../config/cloudinary.js";
 import streamifier from "streamifier";
+import Company from "../models/companyModel.js";
+
 
 export const getAProfile = async (req, res) => {
   try {
@@ -108,19 +110,42 @@ export const upsertProfile = async (req, res) => {
   }
 };
 
+
+
 export const getAllProfiles = async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
     const limit = 10;
     const skip = (page - 1) * limit;
 
-    const profiles = await Profile.find()
+    // Step 1: Fetch employer's company profile
+    const company = await Company.findOne({ user: req.user._id }).select("field");
+    if (!company) {
+      return res.status(404).json({
+        success: false,
+        message: "Company profile not found. Please complete your company profile.",
+      });
+    }
+
+    // Step 2: Build query for matching profiles
+    const query = { industryPreference: company.field };
+
+    // Optional: Add skills and location filtering if provided
+    if (req.query.skills) {
+      query.skills = { $in: req.query.skills.split(",").map(s => s.trim()) };
+    }
+    if (req.query.location) {
+      query["personalInfo.location"] = { $regex: req.query.location, $options: "i" };
+    }
+
+    // Step 3: Fetch matching profiles
+    const profiles = await Profile.find(query)
       .populate("user", "email role")
       .skip(skip)
       .limit(limit)
       .select("personalInfo resume skills industryPreference profileCompleteness");
 
-    const total = await Profile.countDocuments();
+    const total = await Profile.countDocuments(query);
 
     res.status(200).json({
       success: true,
