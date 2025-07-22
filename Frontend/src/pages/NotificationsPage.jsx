@@ -16,7 +16,7 @@ const NotificationsPage = () => {
   const [markingAsRead, setMarkingAsRead] = useState({});
   const hasJoinedRoom = useRef(false);
 
-  // ✅ Fetch from backend
+
   const fetchNotifications = async () => {
     try {
       const token = localStorage.getItem("token");
@@ -54,7 +54,6 @@ const NotificationsPage = () => {
     fetchNotifications();
   }, []);
 
-  // ✅ Listen for real-time notifications
   useEffect(() => {
     if (!isLoggedIn || !user || user.role !== "employer") {
       navigate("/signin");
@@ -88,7 +87,7 @@ const NotificationsPage = () => {
     };
   }, [socket, user, isLoggedIn, navigate]);
 
-  // ✅ Watch storage (optional)
+
   useEffect(() => {
     const syncStorage = (e) => {
       if (e.key === "notifications") {
@@ -102,7 +101,7 @@ const NotificationsPage = () => {
     return () => window.removeEventListener("storage", syncStorage);
   }, []);
 
-  // ✅ Mark single notification as read
+
   const markAsRead = async (notificationId) => {
     if (markingAsRead[notificationId]) return;
     setMarkingAsRead((prev) => ({ ...prev, [notificationId]: true }));
@@ -130,7 +129,7 @@ const NotificationsPage = () => {
     }
   };
 
-  // ✅ Mark all as read
+
   const markAllAsRead = async () => {
     try {
       const token = localStorage.getItem("token");
