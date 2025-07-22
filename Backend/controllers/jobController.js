@@ -6,8 +6,7 @@ import asyncHandler from "express-async-handler";
 import User from "../models/userModel.js";
 import sendStatusUpdateEmail from "../utils/statusUpdateMailer.js";
 import Company from "../models/companyModel.js";
-
-
+import Notification from "../models/notificationModel.js";
 
 export const createJob = asyncHandler(async (req, res) => {
   const { job, details, payAndBenefits, preferences, status } = req.body;
@@ -23,7 +22,7 @@ export const createJob = asyncHandler(async (req, res) => {
   const newJob = await Job.create({
     employer: req.user._id,
     company: {
-      name: companyProfile.name, 
+      name: companyProfile.name,
       contactPerson: req.body.company?.contactPerson || "",
       phone: req.body.company?.phone || "",
       referralSource: req.body.company?.referralSource || "",
@@ -31,7 +30,7 @@ export const createJob = asyncHandler(async (req, res) => {
 
     job: {
       title: job.title,
-      field:companyProfile.field,
+      field: companyProfile.field,
       description: job.description,
       location: job.location,
     },
@@ -61,8 +60,6 @@ export const createJob = asyncHandler(async (req, res) => {
   });
 });
 
-
-
 export const getAllJobs = asyncHandler(async (req, res) => {
   const page = parseInt(req.query.page) || 1;
   const limit = 10;
@@ -74,7 +71,10 @@ export const getAllJobs = asyncHandler(async (req, res) => {
     .skip(skip)
     .limit(limit);
 
-  const total = await Job.countDocuments({ status: "published", isDeleted: false });
+  const total = await Job.countDocuments({
+    status: "published",
+    isDeleted: false,
+  });
 
   res.status(200).json({
     success: true,
@@ -84,11 +84,6 @@ export const getAllJobs = asyncHandler(async (req, res) => {
     data: jobs,
   });
 });
-
-
-
-
-
 
 export const getEmployerJobs = asyncHandler(async (req, res) => {
   const jobs = await Job.find({
@@ -110,7 +105,7 @@ export const updateJob = asyncHandler(async (req, res) => {
     res.status(404);
     throw new Error("Job not found");
   }
-  
+
   if (job.employer.toString() !== req.user._id.toString()) {
     res.status(401);
     throw new Error("Not authorized to update this job");
@@ -177,20 +172,106 @@ export const deleteJob = asyncHandler(async (req, res) => {
   });
 });
 
-
-
-
-
-
-
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-
-
-
-
-
 // apply job
+
+// export const applyJob = async (req, res) => {
+//   try {
+//     const jobId = req.params.jobId;
+
+//     const job = await Job.findById(jobId).populate("employer", "name email");
+//     if (!job) {
+//       return res.status(404).json({ success: false, message: "Job not found" });
+//     }
+
+//     const profile = await Profile.findOne({ user: req.user._id });
+//     if (!profile) {
+//       return res.status(400).json({
+//         success: false,
+//         message: "Please complete your profile before applying",
+//         redirectTo: "/profile",
+//       });
+//     }
+
+//     if (!profile.skills || profile.skills.length === 0) {
+//       return res.status(400).json({
+//         success: false,
+//         message: "Please update your profile with skills before applying",
+//         redirectTo: "/profile",
+//       });
+//     }
+
+//     // Check skill match
+//     const jobSkills = job.requiredSkills.map((s) => s.toLowerCase());
+//     const userSkills = profile.skills.map((s) => s.toLowerCase());
+//     const hasMatchingSkill = jobSkills.some((skill) =>
+//       userSkills.includes(skill)
+//     );
+
+//     if (!hasMatchingSkill) {
+//       return res.status(400).json({
+//         success: false,
+//         message: "Your profile does not match the required skills",
+//       });
+//     }
+
+//     // Already applied check
+//     const alreadyApplied = await Application.findOne({
+//       job: jobId,
+//       user: req.user._id,
+//     });
+//     if (alreadyApplied) {
+//       return res.status(400).json({
+//         success: false,
+//         message: "You have already applied to this job",
+//       });
+//     }
+
+//     // Create application
+//     await Application.create({
+//       user: req.user._id,
+//       job: jobId,
+//       status: "pending",
+//     });
+
+//     // Extract name/phone/email from profile.personalInfo
+//     const name =
+//       profile.personalInfo?.firstName ||
+//       "" + " " + profile.personalInfo?.lastName ||
+//       "";
+//     const email = profile.personalInfo?.email || "Not provided";
+//     const phone = profile.personalInfo?.phone || "Not provided";
+
+//     // Build resume URL
+//     const resumePath = profile.resume?.filename
+//       ? `http://localhost:9999/uploads/resumes/${profile.resume.filename}`
+//       : "";
+
+//     // Send email to employer
+//     if (job.employer?.email) {
+//       await sendJobApplicationEmail({
+//         to: job.employer.email,
+//         jobTitle: job.job.title,
+//         applicantName: name || "Not available",
+//         applicantEmail: email,
+//         applicantPhone: phone,
+//         resumeLink: resumePath,
+//       });
+//     }
+
+//     res.status(200).json({
+//       success: true,
+//       message: "🎉 Job application submitted successfully!",
+//     });
+//   } catch (error) {
+//     console.error("Error applying to job:", error);
+//     res.status(500).json({
+//       success: false,
+//       message: "Something went wrong",
+//     });
+//   }
+// };
 
 export const applyJob = async (req, res) => {
   try {
@@ -244,24 +325,24 @@ export const applyJob = async (req, res) => {
       });
     }
 
-    // Create application
-    await Application.create({
+    // Create application with employer
+    const application = await Application.create({
       user: req.user._id,
       job: jobId,
+      employer: job.employer._id,
       status: "pending",
     });
 
     // Extract name/phone/email from profile.personalInfo
-    const name =
-      profile.personalInfo?.firstName ||
-      "" + " " + profile.personalInfo?.lastName ||
-      "";
+    const name = `${profile.personalInfo?.firstName || ""} ${
+      profile.personalInfo?.lastName || ""
+    }`.trim();
     const email = profile.personalInfo?.email || "Not provided";
     const phone = profile.personalInfo?.phone || "Not provided";
 
-    // Build resume URL
+    // Build resume URL using .env
     const resumePath = profile.resume?.filename
-      ? `http://localhost:9999/uploads/resumes/${profile.resume.filename}`
+      ? `${process.env.BACKEND_URL}/uploads/resumes/${profile.resume.filename}`
       : "";
 
     // Send email to employer
@@ -273,6 +354,26 @@ export const applyJob = async (req, res) => {
         applicantEmail: email,
         applicantPhone: phone,
         resumeLink: resumePath,
+      });
+    }
+
+    // Save notification to DB
+    await Notification.create({
+      userId: job.employer._id,
+      type: "application",
+      content: `New application for job ${job.job.title}`,
+      applicationId: application._id,
+      jobId: job._id,
+    });
+
+    // Emit socket notification if available
+    if (req.io) {
+      req.io.to(job.employer._id.toString()).emit("receiveNotification", {
+        type: "application",
+        content: `New application for job ${job.job.title}`,
+        createdAt: new Date(),
+        applicationId: application._id,
+        jobId,
       });
     }
 
@@ -288,7 +389,6 @@ export const applyJob = async (req, res) => {
     });
   }
 };
-
 
 export const getApplicantsByJob = async (req, res) => {
   try {
@@ -308,10 +408,9 @@ export const getApplicantsByJob = async (req, res) => {
     }
 
     const applications = await Application.find({ job: jobId })
-   
-  .populate("user", "email _id") // ✅ include _id explicitly
-  .lean();
 
+      .populate("user", "email _id") // ✅ include _id explicitly
+      .lean();
 
     console.log("📝 Applications found:", applications.length);
 
@@ -320,7 +419,9 @@ export const getApplicantsByJob = async (req, res) => {
         console.log("🔎 Fetching profile for user:", app.user._id);
         const profile = await Profile.findOne({ user: app.user._id });
 
-        const name = `${profile?.personalInfo?.firstName || ""} ${profile?.personalInfo?.lastName || ""}`.trim();
+        const name = `${profile?.personalInfo?.firstName || ""} ${
+          profile?.personalInfo?.lastName || ""
+        }`.trim();
         const email = profile?.personalInfo?.email || app.user.email || "N/A";
         const phone = profile?.personalInfo?.phone || "N/A";
         const resumeUrl = profile?.resume?.filename
@@ -353,23 +454,31 @@ export const getApplicantsByJob = async (req, res) => {
   }
 };
 
-
-
-
-
 export const updateApplicationStatus = async (req, res) => {
   try {
     const { applicationId } = req.params;
     const { status } = req.body;
 
-    const validStatuses = ["pending", "reject", "finalist", "ready for interview"];
+    const validStatuses = [
+      "pending",
+      "reject",
+      "finalist",
+      "ready for interview",
+    ];
     if (!validStatuses.includes(status)) {
-      return res.status(400).json({ success: false, message: "Invalid status" });
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid status" });
     }
 
-    const application = await Application.findById(applicationId).populate("user", "_id");
+    const application = await Application.findById(applicationId).populate(
+      "user",
+      "_id"
+    );
     if (!application) {
-      return res.status(404).json({ success: false, message: "Application not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "Application not found" });
     }
 
     application.status = status;
@@ -400,17 +509,18 @@ export const updateApplicationStatus = async (req, res) => {
     });
   } catch (err) {
     console.error("❌ Error updating status:", err);
-    res.status(500).json({ success: false, message: "Failed to update status" });
+    res
+      .status(500)
+      .json({ success: false, message: "Failed to update status" });
   }
 };
 
-
-
-
 export const getAppliedJobs = async (req, res) => {
   try {
-    const applications = await Application.find({ user: req.user._id }).populate("job");
-    const appliedJobs = applications.map(app => app.job);
+    const applications = await Application.find({
+      user: req.user._id,
+    }).populate("job");
+    const appliedJobs = applications.map((app) => app.job);
     res.status(200).json({ success: true, data: appliedJobs });
   } catch (err) {
     console.error("❌ Error in getAppliedJobs:", err);
@@ -418,20 +528,7 @@ export const getAppliedJobs = async (req, res) => {
   }
 };
 
-
-
-
-
-
-
-
-
-
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-
-
 
 // Save a job
 export const saveJob = async (req, res) => {
@@ -494,9 +591,6 @@ export const removeSavedJob = async (req, res) => {
     res.status(500).json({ success: false, message: "Internal Server Error" });
   }
 };
-
-
-
 
 export const getSavedJobs = async (req, res) => {
   try {

@@ -2530,7 +2530,8 @@ const FirstPage = () => {
       }
     } catch (error) {
       console.error("Failed to fetch profiles:", error);
-      alert("Error fetching profiles. Please try again.");
+      alert("Error fetching profiles. Update you company info");
+      navigate('/update-company-profile')
     } finally {
       setLoadingProfiles(false);
     }
