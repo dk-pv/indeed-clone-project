@@ -454,6 +454,7 @@ export const getApplicantsByJob = async (req, res) => {
   }
 };
 
+
 export const updateApplicationStatus = async (req, res) => {
   try {
     const { applicationId } = req.params;

@@ -1,9 +1,5 @@
-
-
-
-
 import { useState, useEffect, useRef, useContext } from "react";
-import { Menu, X, User, Bell, MessageSquare, Bookmark } from "lucide-react";
+import { Menu, X, User, Bell, MessageSquare, Bookmark, MessageCircle, BellDot } from "lucide-react";
 import useAlert from "../hooks/useAlert";
 import AlertMessage from "../components/common/AlertMessage";
 import { AuthContext } from "../context/AuthContext";
@@ -142,13 +138,25 @@ const Navbar = () => {
           <div className="hidden min-[990px]:flex items-center space-x-6">
             {isLoggedIn ? (
               <div className="flex items-center space-x-5">
-                <Link to="/saved-jobs">
-                  <div className="p-2 text-gray-500 hover:text-blue-600 hover:bg-gray-50 rounded-full">
-                    <Bookmark className="h-5 w-5" />
-                  </div>
-                </Link>
-
-                {userRole === "employer" && (
+                {userRole !== "employer" ? (
+                  <>
+                    <Link to="/saved-jobs">
+                      <div className="p-2 text-gray-500 hover:text-blue-600 hover:bg-gray-50 rounded-full">
+                        <Bookmark className="h-5 w-5" />
+                      </div>
+                    </Link>
+                    <Link to="/messages">
+                      <div className="p-2 text-gray-500 hover:text-blue-600 hover:bg-gray-50 rounded-full">
+                        <MessageCircle className="h-5 w-5" />
+                      </div>
+                    </Link>
+                    <Link to="/notifications">
+                      <div className="p-2 text-gray-500 hover:text-blue-600 hover:bg-gray-50 rounded-full">
+                        <BellDot className="h-5 w-5" />
+                      </div>
+                    </Link>
+                  </>
+                ) : (
                   <>
                     <Link to="/employer-chat">
                       <div className="p-2 text-gray-500 hover:text-blue-600 hover:bg-gray-50 rounded-full">
