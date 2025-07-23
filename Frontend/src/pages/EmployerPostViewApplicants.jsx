@@ -9,7 +9,6 @@ const EmployerPostViewApplicants = () => {
   const [applications, setApplications] = useState([]);
 
   useEffect(() => {
-    console.log("📦 Job ID:", jobId); 
     fetchApplicants();
   }, [jobId]);
 
@@ -24,7 +23,6 @@ const EmployerPostViewApplicants = () => {
           },
         }
       );
-      console.log("📥 Applicants fetched:", res.data.data); 
       setApplications(res.data.data);
     } catch (err) {
       console.error("❌ Failed to fetch applicants", err);
@@ -64,6 +62,13 @@ const EmployerPostViewApplicants = () => {
       default:
         return "bg-gray-100 text-gray-800 border-gray-200";
     }
+  };
+
+  // Function to generate a viewer URL for the resume
+  const getResumeViewerUrl = (resumeUrl) => {
+    if (!resumeUrl) return null;
+    // Use Google Docs viewer to render the PDF in the browser
+    return `https://docs.google.com/viewer?url=${encodeURIComponent(resumeUrl)}&embedded=true`;
   };
 
   return (
@@ -113,7 +118,7 @@ const EmployerPostViewApplicants = () => {
                         <p className="text-gray-600 text-sm">Applicant</p>
                       </div>
                     </div>
-                    
+
                     <div className="flex items-center space-x-3">
                       <span className={`px-3 py-1 rounded-full text-sm font-medium border ${getStatusColor(app.status || "pending")}`}>
                         {(app.status || "pending").charAt(0).toUpperCase() + (app.status || "pending").slice(1)}
@@ -141,7 +146,7 @@ const EmployerPostViewApplicants = () => {
                       <span className="text-sm text-gray-600">Email:</span>
                       <span className="text-sm text-gray-900">{app.user?.email}</span>
                     </div>
-                    
+
                     <div className="flex items-center space-x-2">
                       <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
@@ -149,20 +154,24 @@ const EmployerPostViewApplicants = () => {
                       <span className="text-sm text-gray-600">Phone:</span>
                       <span className="text-sm text-gray-900">{app.user?.phone}</span>
                     </div>
-                    
+
                     <div className="flex items-center space-x-2">
                       <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                       </svg>
                       <span className="text-sm text-gray-600">Resume:</span>
-                      <a
-                        href={app.user?.resumeUrl}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="text-sm text-blue-600 hover:text-blue-800 underline hover:no-underline"
-                      >
-                        View Resume
-                      </a>
+                      {app.user?.resumeUrl ? (
+                        <a
+                          href={getResumeViewerUrl(app.user.resumeUrl)}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="text-sm text-blue-600 hover:text-blue-800 underline hover:no-underline"
+                        >
+                          View Resume
+                        </a>
+                      ) : (
+                        <span className="text-sm text-gray-400 italic">Not uploaded</span>
+                      )}
                     </div>
                   </div>
 
