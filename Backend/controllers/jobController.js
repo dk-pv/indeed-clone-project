@@ -455,6 +455,73 @@ export const getApplicantsByJob = async (req, res) => {
 };
 
 
+// export const updateApplicationStatus = async (req, res) => {
+//   try {
+//     const { applicationId } = req.params;
+//     const { status } = req.body;
+
+//     const validStatuses = [
+//       "pending",
+//       "reject",
+//       "finalist",
+//       "ready for interview",
+//     ];
+//     if (!validStatuses.includes(status)) {
+//       return res
+//         .status(400)
+//         .json({ success: false, message: "Invalid status" });
+//     }
+
+//     const application = await Application.findById(applicationId).populate(
+//       "user",
+//       "_id"
+//     );
+//     if (!application) {
+//       return res
+//         .status(404)
+//         .json({ success: false, message: "Application not found" });
+//     }
+
+//     application.status = status;
+//     await application.save();
+
+//     // Send email only for non-pending statuses
+//     if (status !== "pending") {
+//       const profile = await Profile.findOne({ user: application.user._id });
+//       const job = await Job.findById(application.job);
+
+//       const name = `${profile?.personalInfo?.firstName || "Applicant"}`;
+//       const email = profile?.personalInfo?.email;
+
+//       if (email && job?.job?.title) {
+//         await sendStatusUpdateEmail({
+//           to: email,
+//           applicantName: name,
+//           jobTitle: job.job.title,
+//           newStatus: status,
+//         });
+//       }
+//     }
+
+//     res.status(200).json({
+//       success: true,
+//       message: "Status updated and email sent",
+//       data: application,
+//     });
+//   } catch (err) {
+//     console.error("❌ Error updating status:", err);
+//     res
+//       .status(500)
+//       .json({ success: false, message: "Failed to update status" });
+//   }
+// };
+
+
+
+
+
+
+
 export const updateApplicationStatus = async (req, res) => {
   try {
     const { applicationId } = req.params;
@@ -485,7 +552,6 @@ export const updateApplicationStatus = async (req, res) => {
     application.status = status;
     await application.save();
 
-    // Send email only for non-pending statuses
     if (status !== "pending") {
       const profile = await Profile.findOne({ user: application.user._id });
       const job = await Job.findById(application.job);
@@ -493,6 +559,7 @@ export const updateApplicationStatus = async (req, res) => {
       const name = `${profile?.personalInfo?.firstName || "Applicant"}`;
       const email = profile?.personalInfo?.email;
 
+      // ✅ 1. Send Email
       if (email && job?.job?.title) {
         await sendStatusUpdateEmail({
           to: email,
@@ -501,11 +568,28 @@ export const updateApplicationStatus = async (req, res) => {
           newStatus: status,
         });
       }
+
+      // ✅ 2. Save In-App Notification
+      await Notification.create({
+        userId: application.user._id, // Target: applicant
+        type: "application",
+        content: `Your application for "${job.job.title}" has been updated to "${status}"`,
+        jobId: job._id,
+        applicationId: application._id,
+      });
+
+      // ✅ 3. Emit real-time notification to applicant (if connected via socket.io)
+      req.io.to(application.user._id.toString()).emit("newNotification", {
+        content: `Your application for "${job.job.title}" has been updated to "${status}"`,
+        jobId: job._id,
+        applicationId: application._id,
+        type: "application",
+      });
     }
 
     res.status(200).json({
       success: true,
-      message: "Status updated and email sent",
+      message: "Status updated, email & notification sent",
       data: application,
     });
   } catch (err) {
@@ -515,6 +599,15 @@ export const updateApplicationStatus = async (req, res) => {
       .json({ success: false, message: "Failed to update status" });
   }
 };
+
+
+
+
+
+
+
+
+
 
 export const getAppliedJobs = async (req, res) => {
   try {

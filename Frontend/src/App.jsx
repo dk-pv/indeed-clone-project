@@ -25,6 +25,7 @@ import CompanyProfilePage from "./pages/CompanyProfilePage";
 import FallbackPage from "./pages/FallbackPage";
 import NotificationsPage from "./pages/NotificationsPage";
 import ErrorPage from "./pages/ErrorPage"; // New import
+import JSNotification from "./pages/JSnotification";
 
 const router = createBrowserRouter([
   {
@@ -41,6 +42,7 @@ const router = createBrowserRouter([
       { path: "/job-details/:jobId", element: <JobDetailsPage /> },
       { path: "/company/user/:userId", element: <CompanyProfilePage /> },
       { path: "/notifications", element: <NotificationsPage />, errorElement: <ErrorPage /> },
+      {path:'/notifications-jobseeker' , element:<JSNotification/>}
     ],
   },
   {
