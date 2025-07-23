@@ -9,7 +9,9 @@ export const sendWelcomeEmail = async (email, nameOrRole) => {
       <div style="font-family: 'Segoe UI', Roboto, sans-serif; background-color: #f7f8fa; padding: 40px 20px;">
         <div style="max-width: 560px; margin: auto; background: #fff; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); overflow: hidden;">
           <div style="padding: 32px 40px 24px; text-align: center;">
-            <img src="https://1000logos.net/wp-content/uploads/2023/01/Indeed-logo-500x281.jpg" alt="Indeed Clone" style="height: 32px; margin-bottom: 16px;" />
+            <h1 style="margin: 0; font-size: 24px; font-weight: 700; color: #2557a7; line-height: 1.3;">
+                Indeed 
+              </h1>
             <h1 style="font-size: 24px; color: #2d3748;">Welcome ${nameOrRole || "User"}!</h1>
           </div>
           <div style="padding: 0 40px 32px;">

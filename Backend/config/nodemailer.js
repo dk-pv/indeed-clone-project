@@ -23,7 +23,9 @@ export const sendOTP = async (email, otp) => {
           <!-- Header -->
           <div style="background: #ffffff; padding: 32px 40px 24px; border-bottom: 1px solid #e4e6ea;">
             <div style="text-align: center;">
-              <img src="https://1000logos.net/wp-content/uploads/2023/01/Indeed-logo-500x281.jpg" alt="Indeed Clone" style="height: 32px; margin-bottom: 16px;" />
+              <h1 style="margin: 0; font-size: 24px; font-weight: 700; color: #2557a7; line-height: 1.3;">
+                Indeed 
+              </h1>
               <h1 style="margin: 0; font-size: 24px; font-weight: 600; color: #2d3748; line-height: 1.3;">
                 Verify your email address
               </h1>
