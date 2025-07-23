@@ -46,7 +46,7 @@ const SingleEntryAuth = () => {
   }
 
   try {
-    const res = await axios.get("http://localhost:9999/api/company/exists", {
+    const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/company/exists`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -79,7 +79,7 @@ const SingleEntryAuth = () => {
 
       const role = localStorage.getItem("userRole");
 
-      const res = await axios.post("http://localhost:9999/api/auth/send-otp", {
+      const res = await axios.post(`${import.meta.env.VITE_API_URL}/api/auth/send-otp`, {
         email,
         role,
       });
@@ -106,7 +106,7 @@ const SingleEntryAuth = () => {
     try {
       const role = localStorage.getItem("userRole");
 
-      const res = await axios.post("http://localhost:9999/api/auth/send-otp", {
+      const res = await axios.post(`${import.meta.env.VITE_API_URL}/api/auth/send-otp`, {
         email,
         role,
       });
@@ -140,7 +140,7 @@ const SingleEntryAuth = () => {
 
     try {
       const res = await axios.post(
-        "http://localhost:9999/api/auth/verify-otp",
+        `${import.meta.env.VITE_API_URL}/api/auth/verify-otp`,
         {
           email,
           otp: otp.join(""),
@@ -212,7 +212,7 @@ const SingleEntryAuth = () => {
       }
 
       const res = await axios.post(
-        "http://localhost:9999/api/auth/google-login",
+        `${import.meta.env.VITE_API_URL}/api/auth/google-login`,
         {
           token,
           role,

@@ -16,7 +16,7 @@ const EmployerPostViewApplicants = () => {
     try {
       const token = localStorage.getItem("token");
       const res = await axios.get(
-        `http://localhost:9999/api/job/applicants/${jobId}`,
+        `${import.meta.env.VITE_API_URL}/api/job/applicants/${jobId}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -33,7 +33,7 @@ const EmployerPostViewApplicants = () => {
     try {
       const token = localStorage.getItem("token");
       await axios.put(
-        `http://localhost:9999/api/job/update-status/${applicationId}`,
+        `${import.meta.env.VITE_API_URL}/api/job/update-status/${applicationId}`,
         { status: newStatus },
         {
           headers: { Authorization: `Bearer ${token}` },

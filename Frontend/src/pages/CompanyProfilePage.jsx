@@ -6,17 +6,19 @@ const CompanyProfilePage = () => {
   const { userId } = useParams(); // assuming userId is the company ID
   const [company, setCompany] = useState(null);
   const [error, setError] = useState("");
-  const API_BASE = "http://localhost:9999/api";
 
   const fetchCompany = async () => {
     const token = localStorage.getItem("token");
 
     try {
-      const res = await axios.get(`${API_BASE}/company/${userId}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const res = await axios.get(
+        `${import.meta.env.VITE_API_URL}/api/company/${userId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
       setCompany(res.data.data);
     } catch (error) {
       console.error("Company fetch failed", error);
@@ -28,8 +30,18 @@ const CompanyProfilePage = () => {
     fetchCompany();
   }, []);
 
-  if (error) return <div className="flex justify-center items-center min-h-screen"><div className="text-lg text-red-600">{error}</div></div>;
-  if (!company) return <div className="flex justify-center items-center min-h-screen"><div className="text-lg text-gray-600">Loading...</div></div>;
+  if (error)
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <div className="text-lg text-red-600">{error}</div>
+      </div>
+    );
+  if (!company)
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <div className="text-lg text-gray-600">Loading...</div>
+      </div>
+    );
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
@@ -55,30 +67,44 @@ const CompanyProfilePage = () => {
         {/* Company Details */}
         <div className="bg-white rounded-lg shadow-sm border border-gray-200">
           <div className="p-8">
-            <h2 className="text-xl font-semibold text-gray-900 mb-6">Company Information</h2>
-            
+            <h2 className="text-xl font-semibold text-gray-900 mb-6">
+              Company Information
+            </h2>
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-4">
                 <div>
-                  <dt className="text-sm font-medium text-gray-500 mb-1">Email</dt>
+                  <dt className="text-sm font-medium text-gray-500 mb-1">
+                    Email
+                  </dt>
                   <dd className="text-base text-gray-900">{company.email}</dd>
                 </div>
-                
+
                 <div>
-                  <dt className="text-sm font-medium text-gray-500 mb-1">Location</dt>
-                  <dd className="text-base text-gray-900">{company.location}</dd>
+                  <dt className="text-sm font-medium text-gray-500 mb-1">
+                    Location
+                  </dt>
+                  <dd className="text-base text-gray-900">
+                    {company.location}
+                  </dd>
                 </div>
               </div>
-              
+
               <div className="space-y-4">
                 <div>
-                  <dt className="text-sm font-medium text-gray-500 mb-1">Field</dt>
+                  <dt className="text-sm font-medium text-gray-500 mb-1">
+                    Field
+                  </dt>
                   <dd className="text-base text-gray-900">{company.field}</dd>
                 </div>
-                
+
                 <div>
-                  <dt className="text-sm font-medium text-gray-500 mb-1">Company Strength</dt>
-                  <dd className="text-base text-gray-900">{company.strength}</dd>
+                  <dt className="text-sm font-medium text-gray-500 mb-1">
+                    Company Strength
+                  </dt>
+                  <dd className="text-base text-gray-900">
+                    {company.strength}
+                  </dd>
                 </div>
               </div>
             </div>

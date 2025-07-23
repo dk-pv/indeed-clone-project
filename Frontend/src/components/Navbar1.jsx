@@ -116,7 +116,7 @@ const Navbar = () => {
       const token = localStorage.getItem("token");
       if (!token) return;
 
-      const res = await axios.get("http://localhost:9999/api/notifications", {
+      const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/notifications`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (res.data.success) {

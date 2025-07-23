@@ -20,7 +20,7 @@ const NotificationsPage = () => {
   const fetchNotifications = async () => {
     try {
       const token = localStorage.getItem("token");
-      const res = await axios.get("http://localhost:9999/api/notifications", {
+      const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/notifications`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -109,7 +109,7 @@ const NotificationsPage = () => {
     try {
       const token = localStorage.getItem("token");
       await axios.post(
-        "http://localhost:9999/api/notifications/mark-read",
+        `${import.meta.env.VITE_API_URL}/api/notifications/mark-read`,
         { notificationId },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -134,7 +134,7 @@ const NotificationsPage = () => {
     try {
       const token = localStorage.getItem("token");
       await axios.post(
-        "http://localhost:9999/api/notifications/mark-all-read",
+        `${import.meta.env.VITE_API_URL}/api/notifications/mark-all-read`,
         {},
         { headers: { Authorization: `Bearer ${token}` } }
       );

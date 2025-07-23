@@ -27,7 +27,7 @@ const MyPosts = () => {
 
       try {
         const res = await axios.get(
-          "http://localhost:9999/api/job/employer/my-jobs",
+          `${import.meta.env.VITE_API_URL}/api/job/employer/my-jobs`,
           {
             headers: { Authorization: `Bearer ${token}` },
           }
@@ -65,7 +65,7 @@ const MyPosts = () => {
     try {
       const token = localStorage.getItem("token");
       await axios.delete(
-        `http://localhost:9999/api/job/delete/${confirmDelete.jobId}`,
+        `${import.meta.env.VITE_API_URL}/api/job/delete/${confirmDelete.jobId}`,
         {
           headers: { Authorization: `Bearer ${token}` },
         }

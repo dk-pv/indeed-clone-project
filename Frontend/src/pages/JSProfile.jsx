@@ -52,7 +52,7 @@ const JSProfile = () => {
     const token = localStorage.getItem("token");
     const fetchProfile = async () => {
       try {
-        const res = await axios.get("http://localhost:9999/api/profile", {
+        const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/profile`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -123,7 +123,7 @@ const JSProfile = () => {
 
       if (resumeFile) form.append("resume", resumeFile);
 
-      const res = await axios.post("http://localhost:9999/api/profile", form, {
+      const res = await axios.post(`${import.meta.env.VITE_API_URL}/api/profile`, form, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
           "Content-Type": "multipart/form-data",

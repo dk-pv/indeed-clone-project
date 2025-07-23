@@ -14,7 +14,7 @@ const SavePagejobpost = () => {
 
   const fetchSavedJobs = async () => {
     try {
-      const res = await axios.get("http://localhost:9999/api/job/saved", {
+      const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/job/saved`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
@@ -27,7 +27,7 @@ const SavePagejobpost = () => {
 
   const handleRemove = async (jobId) => {
     try {
-      await axios.delete(`http://localhost:9999/api/job/saved/${jobId}`, {
+      await axios.delete(`${import.meta.env.VITE_API_URL}/api/job/saved/${jobId}`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },

@@ -56,7 +56,7 @@ const EditJob = () => {
         }
 
         const response = await axios.get(
-          `http://localhost:9999/api/job/${jobId}`,
+          `${import.meta.env.VITE_API_URL}/api/job/${jobId}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -117,7 +117,7 @@ const EditJob = () => {
       const token = localStorage.getItem("token");
 
       await axios.put(
-        `http://localhost:9999/api/job/update/${jobId}`,
+        `${import.meta.env.VITE_API_URL}/api/job/update/${jobId}`,
         jobData,
         {
           headers: {

@@ -15,7 +15,7 @@ const EmployerInbox = () => {
   const fetchInbox = async () => {
     try {
       const res = await axios.get(
-        `http://localhost:9999/api/chat/inbox/${employerId}`,
+        `${import.meta.env.VITE_API_URL}/api/chat/inbox/${employerId}`,
         {
           headers: { Authorization: `Bearer ${token}` },
         }

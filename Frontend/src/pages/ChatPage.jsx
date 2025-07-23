@@ -31,7 +31,7 @@ const ChatPage = () => {
     const fetchEmployer = async () => {
       try {
         const res = await axios.get(
-          `http://localhost:9999/api/auth/${employerId}`,
+          `${import.meta.env.VITE_API_URL}/api/auth/${employerId}`,
           {
             headers: { Authorization: `Bearer ${token}` },
           }
@@ -73,7 +73,7 @@ const ChatPage = () => {
     const fetchMessages = async () => {
       try {
         const res = await axios.get(
-          `http://localhost:9999/api/chat/${jobParam}/${senderId}/${employerId}`,
+          `${import.meta.env.VITE_API_URL}/api/chat/${jobParam}/${senderId}/${employerId}`,
           {
             headers: { Authorization: `Bearer ${token}` },
           }
@@ -104,7 +104,7 @@ const ChatPage = () => {
     };
 
     try {
-      await axios.post("http://localhost:9999/api/chat/send", data, {
+      await axios.post(`${import.meta.env.VITE_API_URL}/api/chat/send`, data, {
         headers: { Authorization: `Bearer ${token}` },
       });
 

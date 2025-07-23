@@ -66,7 +66,7 @@ export default function EmployerPage() {
       }
 
       try {
-        const res = await fetch("http://localhost:9999/api/company/exists", {
+        const res = await fetch(`${import.meta.VITE_API_URL}/api/company/exists`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -99,7 +99,7 @@ export default function EmployerPage() {
     const fetchCompanyProfile = async () => {
       try {
         const token = localStorage.getItem("token");
-        const res = await fetch("http://localhost:9999/api/company", {
+        const res = await fetch(`${import.meta.env.VITE_API_URL}/api/company`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -318,7 +318,7 @@ export default function EmployerPage() {
     try {
       console.log("📦 Sending job post:", jobPostData);
 
-      const response = await fetch("http://localhost:9999/api/job/create", {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/job/create`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
