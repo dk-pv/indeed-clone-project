@@ -13,7 +13,7 @@ export const SocketProvider = ({ children }) => {
 
     setSocket(newSocket);
 
-    return () => newSocket.disconnect(); // clean up on unmount
+    return () => newSocket.disconnect();
   }, []);
 
   return (

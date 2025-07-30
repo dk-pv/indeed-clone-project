@@ -112,10 +112,9 @@ const SingleEntryAuth = () => {
       });
 
       setCanResend(false);
-      setResendCooldown(60); // Reset cooldown to 60 second
-      setOtp(new Array(6).fill("")); // Clear previous OTP
+      setResendCooldown(60);
+      setOtp(new Array(6).fill(""));
 
-      // Clear OTP input fields
       otpRefs.current.forEach((ref) => {
         if (ref) ref.value = "";
       });
@@ -156,8 +155,7 @@ const SingleEntryAuth = () => {
         localStorage.removeItem("userRole");
 
         showAlert("success", "OTP Verified. Logged in!");
-        // setTimeout(() => navigate("/", { replace: true }), 1000);
-        checkEmployerProfile(token, user.role); // ✅ Role-based navigation
+        checkEmployerProfile(token, user.role);
 
       } else {
         setError("Invalid response from server");
