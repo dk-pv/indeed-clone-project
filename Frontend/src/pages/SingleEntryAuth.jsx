@@ -53,9 +53,9 @@ const SingleEntryAuth = () => {
     });
 
     if (res.data.exists) {
-      navigate("/", { replace: true }); // ✅ Company profile already set
+      navigate("/", { replace: true }); 
     } else {
-      navigate("/update-company-profile", { replace: true }); // ❗ Profile not set
+      navigate("/update-company-profile", { replace: true }); 
     }
   } catch (err) {
     console.error("Error checking company profile", err);
@@ -112,7 +112,7 @@ const SingleEntryAuth = () => {
       });
 
       setCanResend(false);
-      setResendCooldown(60); // Reset cooldown to 60 seconds
+      setResendCooldown(60); // Reset cooldown to 60 second
       setOtp(new Array(6).fill("")); // Clear previous OTP
 
       // Clear OTP input fields
