@@ -26,6 +26,7 @@ const app = express();
 // DB connect
 connectDB();
 
+
 const allowedOrigins = [
   'https://indeed-clone-project.vercel.app',
   'http://localhost:5173'
