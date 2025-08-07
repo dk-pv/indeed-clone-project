@@ -31,13 +31,21 @@ const allowedOrigins = [
   'https://indeed-clone-project.vercel.app',
   'http://localhost:5173'
 ];
-// Middleware
+
 app.use(
   cors({
-    origin: process.env.FRONTEND_URL,
+    origin: function (origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
     credentials: true,
   })
 );
+
+
 app.use(express.json());
 
 // Resume static folder
