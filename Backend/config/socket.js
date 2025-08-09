@@ -3,10 +3,14 @@ import { Server } from "socket.io";
 export const setupSocket = (server) => {
   const io = new Server(server, {
     cors: {
-      origin: process.env.FRONTEND_URL,
+      origin: [process.env.FRONTEND_URL , 
+        "https://indeed-clone-project.vercel.app"
+      ],
       methods: ["GET", "POST"],
       credentials: true,
     },
+    transports : ['websocket' , 'polling'],
+    allowEIO3v: true
   });
 
   io.on("connection", (socket) => {
